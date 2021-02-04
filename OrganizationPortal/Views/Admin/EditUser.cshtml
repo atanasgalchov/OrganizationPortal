@@ -1,0 +1,45 @@
+﻿@using Newtonsoft.Json
+@model OrgUserViewModel
+@{
+    ViewData["Title"] = Model.UserName != null ? $"{Model.UserName}" : "Add User";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section styles
+{
+
+}
+<!-- page content -->
+<div class="right_col" role="main">
+    <div class="">
+        <div class="g-title">
+            <div class="title_left">
+                <h3>@ViewData["Title"]</h3>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="x_panel">
+            <div class="x_title">
+                <h3>@Model.UserName</h3>
+            </div>
+            <div class="x_content">
+                @Html.Partial("_UserProfileForm", Model)
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/_UserProfile.js"></script>
+    <script>
+        $(document).ready(function () {
+            var context = {
+                saveImageUrl: '@Url.Action("SaveUserImage", "Admin")',
+                deleteImaeUrl: '@Url.Action("DeleteUserImage", "Admin")',
+                getRolesUrl: '@Url.Action("RolesJson", "Admin")',
+                model: [@Html.Raw(JsonConvert.SerializeObject(Model))][0]
+            };
+            _UserProfile.init(context);
+        })
+    </script>
+}

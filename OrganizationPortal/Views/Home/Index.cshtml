@@ -1,0 +1,124 @@
+﻿@model List<NewsViewModel>
+@{
+    ViewData["Title"] = "Начало";
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+}
+
+<!-- PAGE CONTENT : begin -->
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <!-- DIRECTORY : begin -->
+        <!-- You can choose to have 2, 3 or 4 columns in Directory element.
+        To change the number of columns, change the class in the following element from m-3-columns to m-2-columns or m-4-columns -->
+        <div class="c-directory m-has-icon m-3-columns">
+            <div class="c-content-box">
+                <div class="directory-inner">
+                    <i class="ico-shadow tp tp-road-sign"></i>
+                    <h2 class="directory-title"><i class="ico tp tp-road-sign"></i>Избери <strong>твоя интерес</strong></h2>
+                    <div class="directory-content">
+                        <nav class="directory-menu">
+                            <ul>
+                                @*<li>
+                                    <a href="town-hall.html">Администрация</a>
+                                    <ul>
+                                        <li><a href="town-hall.html">Кметство</a></li>
+                                        <li><a href="town-council.html">Читалище</a></li>
+                                        <li><a href="home-2.html">Училище</a></li>
+                                    </ul>
+                                </li>*@
+                                <li>
+                                    <a href="@Url.Action("News", "Home")">Общество</a>
+                                    <ul>
+                                        <li><a href="@Url.Action("News", "Home")">Новини</a></li>
+                                        <li><a href="@Url.Action("Notices", "Home")">Известия</a></li>
+                                        <li><a href="@Url.Action("Documents", "Home")">Документи</a></li>
+                                    </ul>
+                                </li>
+                                @*<li>
+                                    <a href="@Url.Action("About", "Home")">За @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString())</a>
+                                    <ul>
+                                        <li><a href="@Url.Action("About", "Home")">За нас</a></li>
+                                        <li><a href="town-history.html">Town History</a></li>
+                                        <li><a href="virtual-tour.html">Virtual Tour</a></li>
+                                    </ul>
+                                </li>*@
+                                <li>
+                                    <a href="@Url.Action("Events", "Home")">Релакс</a>
+                                    <ul>
+                                        <li><a href="@Url.Action("Events", "Home")">Предстоящи събития</a></li>
+                                        <li><a href="@Url.Action("Gallery", "Home")">Галерия</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("Contact", "Home")">Връзка с нас</a>
+                                    <ul>
+                                        <li><a href="@Url.Action("Contact", "Home")">Пиши ни</a></li>
+                                        <li><a href="@Url.Action("PhoneNumbers", "Home")">Телефонни номера</a></li>
+                                        <li><a href="@Url.Action("About", "Home")">За нас</a></li>
+                                        @if (controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.FacebookPageLink) != null && controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.FacebookPageLink) != String.Empty)
+                                        {
+                                            <li><a href="@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.FacebookPageLink)">Facebook Страница</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- DIRECTORY : end -->
+        <!-- POST LIST : begin -->
+        <div class="c-post-list m-has-icon">
+            <div class="c-content-box">
+                <div class="post-list-inner">
+                    <i class="ico-shadow tp tp-reading"></i>
+                    <h2 class="post-list-title"><i class="ico tp tp-reading"></i>
+                        <a href="@Url.Action("News", "Home")">@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString()) <strong>Новини</strong></a>
+                    </h2>
+                    <div class="post-list-content">
+                        @{ NewsViewModel newestNews = Model.FirstOrDefault(); }
+
+                        <article class="featured-post m-has-thumb">
+                            <div class="post-image">
+                                <a href="@Url.Action("NewsDetails", "Home", new { Id = newestNews.Id })">
+                                    <img src="@newestNews.MainPictureUrl" alt="" style="width: 100%">
+                                </a>
+                            </div>
+                            <div class="post-core">
+                                <h3 class="post-title">
+                                    <a href="@Url.Action("NewsDetails", "Home", new { Id = newestNews.Id })">@newestNews.Title</a>
+                                </h3>
+                                <div class="post-date"><i class="ico tp tp-clock2"></i>@String.Format("{0: dd MMMM, yyyy}", newestNews.PublishedDate)</div>
+                                <div class="post-excerpt">
+                                    <p>@Html.Raw(newestNews.Content.ReplaceEnd(100))</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        @if (Model != null)
+                        {
+                            @foreach (var news in Model.Skip(1))
+                            {
+                                <article class="post">
+                                    <h3 class="post-title">
+                                        <a href="@Url.Action("NewsDetails", "Home", new { Id = news.Id })">@news.Title</a>
+                                    </h3>
+                                    <div class="post-date">@String.Format("{0: dd MMMM, yyyy}", news.PublishedDate)</div>
+                                </article>
+                            }
+                        }
+
+                        <p class="more-btn-holder">
+                            <a href="@Url.Action("News", "Home")">Виж всички</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- POST LIST : end -->
+
+    </div>
+</div>
+<!-- PAGE CONTENT : end -->

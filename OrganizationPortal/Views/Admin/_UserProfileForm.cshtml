@@ -1,0 +1,211 @@
+﻿@model OrgUserViewModel
+@{
+
+    OrganizationPortal.OrgUser account = ViewBag.Account;
+}
+<div id="user-profile">
+     <div class="col-md-3 col-sm-3 col-xs-12 profile_left">
+            <div class="profile_img">
+                <div id="crop-avatar">
+                    <!-- Current avatar -->
+                    <img id="main-picture-url" class="img-responsive avatar-view" src="@Html.Raw(Model.ProfilePictureUrl != null ? Model.ProfilePictureUrl: "/Content/Images/default/user.png")" alt="Avatar" title="Change the avatar">
+                </div>
+            </div>
+            <h3>@Model.UserName</h3>
+
+            <ul class="list-unstyled user_data">
+                <li>
+                    <i class="fa fa-phone user-profile-icon"></i> @Html.Raw(Model.PhoneNumber != null ? Model.PhoneNumber : "<a href=\"#user-profile-phone-number\"> click to add phone </a> ")
+                </li>
+                <li>
+                    <i class="fa fa-briefcase user-profile-icon"></i> @Model.Email
+                </li>
+            </ul>
+
+            <a href="#" data-action="upload-image" class="btn btn-success"><i class="fa fa-edit m-right-xs"></i> Upload </a>
+            @if (Model.ProfilePictureUrl != null)
+            {
+                <a href="#" data-action="delete-image" class="btn btn-danger"><i class="fa fa-remove m-right-xs"></i> Delete</a>
+            }
+            <br />
+
+            <!-- start skills -->
+            <h4>Activities</h4>
+            <ul class="list-unstyled user_data">
+                <li>
+                    <p>News</p>
+                    <div class="progress progress_sm">
+                        <div class="progress-bar bg-green" role="progressbar" data-transitiongoal="@Model.NewsActivityIndex"></div>
+                    </div>
+                </li>
+                <li>
+                    <p>Events</p>
+                    <div class="progress progress_sm">
+                        <div class="progress-bar bg-green" role="progressbar" data-transitiongoal="@Model.EventsActivityIndex"></div>
+                    </div>
+                </li>
+            </ul>
+            <!-- end of skills -->
+
+        </div>
+     <div class="col-md-9 col-sm-9 col-xs-12">
+
+     <div class="profile_title">
+        <div class="col-md-6">
+            <h2>Edit Profile</h2>
+        </div>
+    </div>
+
+    <div class="x_content form-content-medium-left">
+        <form id="edit-user-form" class="form-vertical" method="post" action="@Url.Action("EditUser", "Admin")" type="multipart/form-data">
+            @Html.HiddenFor(x => x.UserName)
+            @Html.TextBoxFor(x => x.MainPicture, new { type = "file", style = "visibility: hidden", accept = "image/x-png,image/jpeg,image/jpg" })
+            @Html.HiddenFor(x => x.ProfilePictureUrl)
+            @Html.HiddenFor(x => x.Id)
+
+            <div class="form-content">
+                @if (account.IsMaster)
+                {
+                    <div class="form-group">
+                        <div>
+                            <label class="control-label" for="EmailConfirmed">
+                                <input type="checkbox" name="EmailConfirmed" value="true" @Html.Raw(Model.EmailConfirmed ? "checked" : "") />
+                                Confirmed
+                            </label>
+                            @Html.ValidationMessageFor(x => x.EmailConfirmed)
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group">
+                    <label class="control-label" for="Email">Email</label>
+                    <div>
+                        @Html.TextBoxFor(x => x.Email, new { @class = "form-control", placeholder = "Email" })
+                        @Html.ValidationMessageFor(x => x.Email)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="Phone">Phone</label>
+                    <div>
+                        @Html.TextBoxFor(x => x.PhoneNumber, new { id = "user-profile-phone-number", @class = "form-control", placeholder = "Phone Number" })
+                        @Html.ValidationMessageFor(x => x.PhoneNumber)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="FirstName">First Name</label>
+                    <div>
+                        @Html.TextBoxFor(x => x.FirstName, new { @class = "form-control", placeholder = "FirstName" })
+                        @Html.ValidationMessageFor(x => x.FirstName)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="LastName">Last Name</label>
+                    <div>
+                        @Html.TextBoxFor(x => x.LastName, new { @class = "form-control", placeholder = "LastName" })
+                        @Html.ValidationMessageFor(x => x.LastName)
+                    </div>
+                </div>
+
+                @if (account.IsMaster)
+                {
+                    <div class="form-group">
+                        <label class="control-label" for="Roles">Roles</label>
+                        <div>
+                            <table id="user-roles" class="table table-striped jambo_table bulk_action" @*cellspacing="0" width="100%"*@>
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th style="width: 90%">Role</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="form-footer" style="text-align:center">
+                <button class="btn" type="button" data-action="back"><i class="fa fa-backward"></i> Back </button>
+                <button class="btn" type="submit"><i class="fa fa-save"></i> Save </button>
+            </div>
+        </form>
+        <div class="" role="tabpanel" data-example-id="togglable-tabs" style="padding-top: 50px">
+            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Recent Events</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Recent News</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+
+                    @if (Model.Events != null && Model.Events.Count > 0)
+                    {
+                        <ul class="messages">
+                            @foreach (var eventItem in Model.Events)
+                            {
+                                <li>
+                                    <img src="@(eventItem.MainPictureUrl != null ? eventItem.MainPictureUrl : "/Content/Images/default/common.png")" class="avatar" alt="">
+                                    <div class="message_date">
+                                        <h3 class="date text-info">@String.Format("{0: dd MMMM yyyy}", eventItem.StartDate.Value)</h3>
+                                        <p class="month">@eventItem.Location.Address</p>
+                                    </div>
+                                    <div class="message_wrapper">
+                                        <h4 class="heading">
+                                            <a href="@Url.Action("EditEvent", "Admin")?Id=@eventItem.Id">@eventItem.Name </a>
+                                        </h4>
+                                        <blockquote class="message" style="word-wrap: break-word;overflow-wrap: break-word;">@eventItem.Content.ReplaceEnd(50) </blockquote>
+                                        <br />
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <dvi> No Events </dvi>
+                        <hr />
+                    }
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                    @if (Model.News != null && Model.News.Count() > 0)
+                    {
+                        <table id="user-profile-data-table-news" class="data table table-striped no-margin dt-responsive nowrap">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Visited</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var newsItem in Model.News)
+                                {
+                                    <tr>
+                                        <td><a href="@Url.Action("EditNews", "Admin")?Id=@newsItem.Id">@newsItem.Name</a></td>
+                                        <td>@newsItem.Title</td>
+                                        <td class="hidden-phone">@newsItem.Category.Name</td>
+                                        <td class="vertical-align-mid">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-success" data-transitiongoal="@newsItem.VisitedCount"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <dvi> No News </dvi>
+                        <hr />
+                    }
+                </div>
+            </div>
+        </div>
+     </div>
+   </div>
+ </div>

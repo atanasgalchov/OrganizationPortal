@@ -1,0 +1,259 @@
+﻿@model EventViewModel
+@{
+	ViewData["Title"] = Model.Title != null ? $"{Model.Title}" : "Add Event";
+	Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section styles
+{
+
+}
+<!-- page content -->
+<div class="right_col" role="main">
+	<div class="page-title">
+		<div class="g-title">
+			<h3>@ViewData["Title"]</h3>
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+	<div class="">
+		<div class="x_panel">
+			<div class="x_title">				
+				<div class="clearfix"></div>
+			</div>
+			<div class="x_content form-content-medium">
+				<br>
+				<form id="edit-event-form" class="form-vertical" method="post" action="@Url.Action("EditEvent", "Admin")" type="multipart/form-data">
+					@Html.HiddenFor(x => x.UserId)
+					@Html.HiddenFor(x => x.MainPictureUrl)
+					@Html.HiddenFor(x => x.Id)
+
+                    <div class="form-content">
+                        <div class="form-group">
+                            <label class="control-label" for="Name">Name</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control", placeholder = "Name" })
+                                @Html.ValidationMessageFor(x => x.Name)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Title">Title</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Title, new { @class = "form-control", placeholder = "Title" })
+                                @Html.ValidationMessageFor(x => x.Title)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Content">Content</label>
+                            <div>
+                                @Html.TextAreaFor(x => x.Content, new { @class = "form-control", placeholder = "Content", rows = "12" })
+                                @Html.ValidationMessageFor(x => x.Content)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="TicketPrice">Ticket Price</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.TicketPrice, new {  @class = "form-control", placeholder = "Ticket Price" })
+                                @Html.ValidationMessageFor(x => x.TicketPrice)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="LocationId">Location Name</label>
+                            <div>
+                                @Html.DropDownListFor(x => x.LocationId, Model.LocationItems, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(x => x.LocationId)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="CategoryId">Category</label>
+                            <div>
+                                @Html.DropDownListFor(x => x.CategoryId, Model.CategoriesItems, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(x => x.CategoryId)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="StartDate">Start Datetime</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.StartDate, "{0:yyyy/MM/dd hh:mm}", new { autocomplete = "off", id = "edit-event-start-date", @class = "form-control", placeholder = "Start Date" })
+                                @Html.ValidationMessageFor(x => x.StartDate)
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="text-align:center;border-style: dashed;background: gainsboro;">
+                            @Html.TextBoxFor(x => x.MainPicture, new { type = "file", style = "visibility: hidden", accept = "image/x-png,image/jpeg,image/jpg" })
+                            <div>
+                                <img id="main-picture-url" src="@Model.MainPictureUrl" alt="No Image" style="width:100%; height:100%; @Html.Raw(Model.MainPictureUrl == null ? "display: none" : "")" ; />
+                            </div>
+                            <div class="form-footer">
+                                <button class="btn" data-action="delete-image" @Html.Raw(Model.MainPictureUrl == null ? "style=\"display: none\"" : "")>
+                                    <i class="fa fa-edit"></i>Delete
+                                </button>
+
+                                <button class="btn" data-action="upload-image">
+                                    <i class="fa fa-edit"></i>Upload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+					<div class="form-footer">
+						<button class="btn btn-large" type="button" data-action="back"><i class="fa fa-backward"></i> Back </button>
+						<button class="btn btn-large" id="edit-event-submit-button" type="submit"><i class="fa fa-save"></i> Save </button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section scripts
+{
+	<script>
+		$(document).ready(function () {
+			var $form = $("#edit-event-form");
+
+			// hook for bug with comma
+            $form.find('[name="TicketPrice"]')
+				.change(function (e) {
+					
+					var value = $(e.currentTarget).val();
+					if (value) {
+						value = value.replace(",", ".");
+					}
+
+					$(e.currentTarget).val(value)
+				})
+				.trigger('change');
+
+			// datepicker
+			var startDate = $form.find('#edit-event-start-date').val();
+			var datePicker = $form.find('#edit-event-start-date').datetimepicker({
+				useCurrent: false
+			});
+			datePicker.val(startDate);
+
+			$form
+				.find('[data-action]')
+				.click(function (e) {
+					e.preventDefault();
+					var $target = $(e.currentTarget);
+					var action = $target.attr('data-action');
+
+					if (action == 'back') {
+						window.history.back();
+					}
+					else if (action == 'delete-image') {
+						var id = '@Model.Id';
+						if (id == 0) {
+							$form.find('[name="MainPicture"]').val('')
+							$form.find('#main-picture-url').attr('src', '').hide();
+							$form.find('[data-action="delete-image"]').hide();
+							$form.find('[name="MainPictureUrl"]').val('');
+
+							$form.find('[data-action="upload-image"]').show();
+							return;
+						}
+
+						ASG.Ajax.post({
+							url: '@Url.Action("DeleteEventImage", "Admin")',
+							data: { id: '@Model.Id' },
+							success(response) {
+								if (response.isSuccess) {
+									$form.find('#main-picture-url').attr('src', '').hide();
+									$form.find('[data-action="delete-image"]').hide();
+
+									$form.find('[data-action="upload-image"]').show();
+									return;
+								}
+							},
+						});
+					}
+					else if (action == 'upload-image') {
+						$form.find('[name="MainPicture"]').click();
+					}
+				})
+				.end()
+				.find('[name="MainPicture"]')
+				.click(function (e) { this.value = null })
+				.change(function (e) {
+					if (this.files && this.files.length) {
+						var file = this.files[0];
+						var id = '@Model.Id';
+						if (id == 0) {
+							var imageSource = URL.createObjectURL(file);
+							$form.find('#main-picture-url').attr('src', imageSource).show();
+							$form.find('[data-action="upload-image"]').hide();
+							$form.find('[data-action="delete-image"]').show();
+							// TODO  Add Logic for local keeping image.
+							return;
+						}
+
+						var formData = new FormData();
+						formData.append("image", file);
+						formData.append("id", id);
+
+						ASG.Ajax.post({
+							url: '@Url.Action("SaveEventImage", "Admin")',
+							data: formData,
+							processData: false,
+							contentType: false,
+							success(response) {
+								if (response.isSuccess) {
+									location.reload();
+									return;
+								}
+							},
+						});
+					}
+				})
+				.end();
+
+			var $form = $('#edit-event-form');
+			$form.submit(function (e) {
+				e.preventDefault();
+
+				var $form = $(this);
+				if (!$form.valid()) {
+					return;
+				}
+
+				var settings = {
+                    url: $form.attr('action'),					
+                    success(response) {
+                        if (response.isSuccess) {
+                            window.location = response.redirectUrl;
+                            return;
+                        }
+                    },
+				};
+
+				var id = '@Model.Id'
+				var $image = $form.find('[name="MainPicture"]');
+				if (id == 0 && $image.get(0).files[0]) {
+					var reader = new FileReader();
+					reader.readAsDataURL($image.get(0).files[0]);
+					reader.onload = function () {			
+
+					var filePath = $image.val(); 
+						var data = $form.serializeToObject();
+						data.MainPictureBase64 = reader.result;
+						data.MainPictureFileExtension = filePath.substr(filePath.lastIndexOf('.') + 1, filePath.length);
+						settings.data = JSON.stringify(data);
+
+						ASG.Ajax.postJson(settings);
+					};
+				} else {
+					settings.data = JSON.stringify($form.serializeToObject()),
+
+					ASG.Ajax.postJson(settings);
+				}
+            });
+        });
+	</script>
+}

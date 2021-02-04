@@ -1,0 +1,92 @@
+﻿@model NoticePageViewModel
+@{
+    ViewData["Title"] = "Известия";
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+}
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <!-- NOTICE LIST PAGE : begin -->
+        <div class="notice-list-page notice-page">
+            @if (Model.Notices != null)
+            {
+                foreach (var notice in Model.Notices)
+                {
+                    <article class="notice">
+                        <div class="notice-inner c-content-box m-no-padding">
+
+                            <!-- NOTICE CORE : begin -->
+                            <div class="notice-core">
+
+                                <!-- NOTICE TITLE : begin -->
+                                <h2 class="notice-title">
+                                    <a href="@Url.Action("NoticeDetails", "Home", new { id = notice.Id })">@(notice.Name != null && notice.Name != String.Empty ? notice.Name : notice.Title)</a>
+                                </h2>
+                                <!-- NOTICE TITLE : end -->
+                                <!-- NOTICE CONTENT : begin -->
+                                <div class="notice-content">
+                                    <p>@notice.Content</p>
+                                </div>
+                                <!-- NOTICE CONTENT : end -->
+
+                            </div>
+                            <!-- NOTICE CORE : end -->
+                            <!-- NOTICE FOOTER : begin -->
+                            <div class="notice-footer">
+                                <div class="notice-footer-inner">
+
+                                    <!-- NOTICE DATE : begin -->
+                                    <div class="notice-date">
+                                        <i class="ico tp tp-clock2"></i>@String.Format("{0: dd MMMM, yyyy}", notice.PublishedDate) в <a href="@Url.Action("Notices", "Home", new { category = notice.CategoryId })">@notice.Category?.Name</a>
+                                    </div>
+                                    <!-- NOTICE DATE : end -->
+
+                                </div>
+                            </div>
+                            <!-- NOTICE FOOTER : end -->
+
+                        </div>
+                    </article>
+                }
+            }
+        </div>
+        <!-- NOTICE LIST PAGE : begin -->
+        <!-- PAGINATION : begin -->
+        <div class="c-pagination">
+            <ul>
+                @if (Model.PageInex > 1)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Notices", "Home", new { pageindex = (Model.PageInex - 3 > 0 ? Model.PageInex - 3 : 1 ), category = Model.CategoryId })"><i class="fa fa-arrow-left"></i></a>
+                    </li>
+                }
+
+                @if (Model.PageInex > 1)
+                {
+                    <li>
+                        <a href="@Url.Action("Notices", "Home", new { pageindex = Model.PageInex - 1, category = Model.CategoryId })">@(Model.PageInex - 1)</a>
+                    </li>
+                }
+                <li class="m-active">
+                    <a href="@Url.Action("Notices", "Home", new { pageindex = Model.PageInex, category = Model.CategoryId  })">@Model.PageInex</a>
+                </li>
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li>
+                        <a href="@Url.Action("Notices", "Home", new { pageindex = Model.PageInex + 1, category = Model.CategoryId })">@(Model.PageInex + 1)</a>
+                    </li>
+                }
+
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Notices", "Home", new { pageindex = Model.PageInex + ((Model.PageCount - Model.PageInex) > 3 ? 3 : (Model.PageCount - Model.PageInex)), category = Model.CategoryId })"><i class="fa fa-arrow-right"></i></a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <!-- PAGINATION : end -->
+
+    </div>
+</div>
+

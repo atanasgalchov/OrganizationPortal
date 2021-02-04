@@ -1,0 +1,106 @@
+﻿@model EventsPageViewModel
+@{
+    ViewData["Title"] = "Събития";
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+}
+
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <div class="event-list-page event-page">
+            @if (Model.Events != null)
+            {
+                @foreach (var eventItem in Model.Events)
+                {
+                    
+                    int currentElementIndex = Model.Events.IndexOf(eventItem);
+                    string currentElementStartDateShort = String.Format("{0: MMMM yyyy}", eventItem.StartDate);
+                    string prevElementStartDateShort = currentElementIndex > 0 ? String.Format("{0: MMMM yyyy}", Model.Events.ElementAtOrDefault(currentElementIndex - 1).StartDate) : null;                   
+                    if (currentElementStartDateShort != prevElementStartDateShort)
+                    {
+                        <h2 class="group-title">@currentElementStartDateShort</h2>
+                    }
+                
+                    <article class="event">
+                        <div class="event-inner c-content-box m-no-padding">
+
+                            <!-- EVENT IMAGE : begin -->
+                            <div class="event-image">
+                                <a href="@Url.Action("EventDetails", "Home", new { id = eventItem.Id })"><img src="@eventItem.MainPictureUrl" alt=""></a>
+                            </div>
+                            <!-- EVENT IMAGE : end -->
+                            <!-- EVENT CORE : begin -->
+                            <div class="event-core">
+
+                                <!-- EVENT TITLE : begin -->
+                                <h2 class="event-title"><a href="@Url.Action("EventDetails", "Home", new { id = eventItem.Id })">@eventItem.Title</a></h2>
+                                <!-- EVENT TITLE : end -->
+                                <!-- EVENT INFO : begin -->
+                                <ul class="event-info">
+                                    <li class="event-date">
+                                        <i class="ico tp tp-calendar-full"></i>@String.Format("{0: dd MMMM, yyyy}", eventItem.StartDate)
+                                    </li>
+                                    <li class="event-time">
+                                        <i class="ico tp tp-clock2"></i>@String.Format("{0: hh:mm ч.}", eventItem.StartDate)
+                                    </li>
+                                    <li class="event-location">
+                                        <i class="ico tp tp-map-marker"></i>@(eventItem.Location != null ? eventItem.Location.Name : "")
+                                    </li>
+                                    @if (eventItem.TicketPrice > 0)
+                                    {
+                                        <li class="event-location">
+                                            <i class="ico fa fa-money"></i>@String.Format("{0:c}",eventItem.TicketPrice)
+                                        </li>
+                                    }
+
+                                </ul>
+                                <!-- EVENT INFO : end -->
+
+                            </div>
+                            <!-- EVENT CORE : end -->
+
+                        </div>
+                    </article>
+                }
+            }
+        </div>
+
+        <!-- POST LIST PAGE : end -->
+        <!-- PAGINATION : begin -->
+        <div class="c-pagination">
+            <ul>
+                @if (Model.PageInex > 1)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Events", "Home", new { pageindex = (Model.PageInex - 3 > 0 ? Model.PageInex - 3 : 1 ), category = Model.CategoryId })"><i class="fa fa-arrow-left"></i></a>
+                    </li>
+                }
+
+                @if (Model.PageInex > 1)
+                {
+                    <li>
+                        <a href="@Url.Action("Events", "Home", new { pageindex = Model.PageInex - 1, category = Model.CategoryId })">@(Model.PageInex - 1)</a>
+                    </li>
+                }
+                <li class="m-active">
+                    <a href="@Url.Action("Events", "Home", new { pageindex = Model.PageInex, category = Model.CategoryId  })">@Model.PageInex</a>
+                </li>
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li>
+                        <a href="@Url.Action("Events", "Home", new { pageindex = Model.PageInex + 1, category = Model.CategoryId })">@(Model.PageInex + 1)</a>
+                    </li>
+                }
+
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Events", "Home", new { pageindex = Model.PageInex + ((Model.PageCount - Model.PageInex) > 3 ? 3 : (Model.PageCount - Model.PageInex)), category = Model.CategoryId })"><i class="fa fa-arrow-right"></i></a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <!-- PAGINATION : end -->
+
+    </div>
+</div>

@@ -1,0 +1,266 @@
+﻿@model IndexViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!-- page content -->
+    <div class="right_col" role="main">
+        <!-- top tiles -->
+        <div class="row tile_count">
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+                <span class="count_top"><i class="fa fa-user"></i> Total Admins </span>
+                <div class="count">@Model.TotalUsers</div>
+            </div>
+
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+                <span class="count_top"><i class="fa fa-newspaper-o"></i> Total News</span>
+                <div class="count green">@Model.TotalNews</div>
+            </div>
+            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+                <span class="count_top"><i class="fa fa-star"></i> Total Events</span>
+                <div class="count">@Model.TotalEvents</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Visitors</h2>
+                        <div class="filter">
+                            <div id="visitors-range" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                <span data-role="visitors-range-select-range-text">Select Range </span> <b class="caret"></b>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="demo-container" style="height:280px">
+                                <div id="visitors-chart" class="demo-placeholder"></div>
+                            </div>
+                            <div class="tiles">
+                                <div class="col-md-4 tile">
+                                    <span>Total Visitors</span>
+                                    <h2 data-role="total-visitors-count"></h2>
+                                </div>
+                                <div class="col-md-4 tile">
+                                    <span>Most visitors by device</span>
+                                    <h2 data-role="most-visitors-by-device"></h2>
+                                </div>
+                                <div class="col-md-4 tile">
+                                    <span>Most visitors by city</span>
+                                    <h2 data-role="most-visitors-by-city"></h2>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+
+        <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Recent Events</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="dashboard-widget-content">
+                            <ul class="list-unstyled timeline widget">
+                                @if (Model.RecentEvents != null)
+                            {
+                                @foreach (var eventItem in Model.RecentEvents)
+                                {
+                                <li>
+                                    <div class="block">
+                                        <div class="block_content">
+                                            <h2 class="title">
+                                                <a>@eventItem.Title</a>
+                                            </h2>
+                                            <div class="byline">
+                                                <span>Author: </span> <a href="@Url.Action("ViewProfile" ,"Admin", new {UserName = eventItem.User.UserName })">@eventItem.User.UserName</a>
+                                            </div>
+                                            <p class="excerpt" style="word-wrap: break-word;overflow-wrap: break-word;">
+                                                @eventItem.Content
+                                            </p>
+
+                                            <br />
+                                            <div class="byline">
+                                                <span> @eventItem.PublishedDate</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                }
+                            }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Recent News</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="dashboard-widget-content">
+                            <ul class="list-unstyled timeline widget">
+                                @if (Model.RecentNews != null)
+                            {
+                                @foreach (var news in Model.RecentNews)
+                                {
+                                <li>
+                                    <div class="block">
+                                        <div class="block_content">
+                                            <h2 class="title">
+                                                <a>@news.Title</a>
+                                            </h2>
+                                            <div class="byline">
+                                                <span>Author: </span> <a href="@Url.Action("ViewProfile" ,"Admin", new {UserName = news.User.UserName })">@news.User.UserName</a>
+                                            </div>
+                                            <p class="excerpt" style="word-wrap: break-word;overflow-wrap: break-word;">
+                                                @news.Content
+                                            </p>
+                                            <br />
+                                            <div class="byline">
+                                                <span> @news.PublishedDate</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                }
+                            }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- /page content -->
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+         // apply.daterangepicker
+         var $visitorsDateRangePicker = $('#visitors-range');
+
+         $visitorsDateRangePicker.daterangepicker({
+             showDropdowns: true,
+             showWeekNumbers: true,
+             startDate: moment().subtract(6, 'days'),
+             endDate: moment(),
+             ranges: {
+                'Today': [moment(), moment()],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                //'This Year': [moment().startOf('year'), moment().endOf('year')]
+              },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY',
+            separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+            });
+       
+            var dateRangePicker = $visitorsDateRangePicker.data('daterangepicker');
+            var $visitorsChart = $('#visitors-chart');
+
+            $visitorsDateRangePicker.on('apply.daterangepicker', function (e) {
+                var dateRangeSelectRangeText = dateRangePicker.startDate.format('L') == dateRangePicker.endDate.format('L') ?
+                    'Today' :
+                    dateRangePicker.startDate.format('LL') + ' - ' + dateRangePicker.endDate.format('LL');
+
+                $visitorsDateRangePicker.find('[data-role="visitors-range-select-range-text"]').text(dateRangeSelectRangeText);
+                ASG.Ajax.get({
+                    url: '@Url.Action("VisitorsStatsJson", "Admin")',
+                    data: {
+                        StartDate: dateRangePicker.startDate.toJSON(),
+                        EndDate: dateRangePicker.endDate.toJSON()
+                    },
+                    success: function (response) {
+                        var visitors = response.data.visitors;
+
+                        $('[data-role="total-visitors-count"]').text(response.data.total);
+                        $('[data-role="most-visitors-by-device"]').text(response.data.mostVisitorsByDevice ? response.data.mostVisitorsByDevice : '-');
+                        $('[data-role="most-visitors-by-city"]').text(response.data.mostVisitorsByCity ? response.data.mostVisitorsByCity : '-');
+
+                        var data = visitors.map(function (item, index) { return [new Date(item.groupedFormat == 'MM/yyyy' ? '01/' + item.date : item.date).getTime(), item.count] });
+                        var groupedFormat = visitors[0] ? visitors[0].groupedFormat : '';
+                        var tickSizePeriod = groupedFormat == 'yyyy' || groupedFormat == 'MM/yyyy' ? 'month' : groupedFormat == 'MM/dd/yyyy hh:mm' ? 'hour' : 'day';
+                        var tickInterval = $(window).width() > 576 ? 1 : 3;
+                       
+                        $visitorsChart.plot([{ data: data, label: 'Visitors' }], {
+                          series: {
+                            lines: {
+                              show: false,
+                              fill: true
+                            },
+                            splines: {
+                              show: true,
+                              tension: 0.4,
+                              lineWidth: 1,
+                              fill: 0.4
+                            },
+                            points: {
+                              radius: 0,
+                              show: true
+                            },
+                            shadowSize: 2
+                          },
+                          grid: {
+                            verticalLines: true,
+                            hoverable: true,
+                            clickable: true,
+                            tickColor: "#d5d5d5",
+                            borderWidth: 1,
+                            color: '#fff'
+                          },
+                          colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)"],
+                          yaxis: {
+                            ticks: 8,
+                            tickColor: "rgba(51, 51, 51, 0.06)",
+                          },
+                          xaxis: {
+                            tickColor: "rgba(51, 51, 51, 0.06)",
+                            mode: "time",
+                            tickSize: [tickInterval, tickSizePeriod],
+                            //tickLength: 10,
+                            axisLabel: "Date",
+                            axisLabelUseCanvas: true,
+                            axisLabelFontSizePixels: 12,
+                            xisLabelFontFamily: 'Verdana, Arial',
+                            axisLabelPadding: 10
+                        },
+                        });
+                    }
+                })
+            });     
+
+            $visitorsDateRangePicker.trigger('apply.daterangepicker');
+        });
+    </script>
+}

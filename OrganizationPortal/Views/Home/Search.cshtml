@@ -1,0 +1,98 @@
+﻿@model SearchResultViewModel 
+@{
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+    Resources resources = controller.Resources as Resources;
+
+    ViewData["Title"] = Model.SearchText;
+    ViewBag.SearchText = Model.SearchText;
+
+    int resultsCount = (Model.News != null ? Model.News.Count() : 0) + (Model.Events != null ? Model.Events.Count() : 0) + (Model.Notices != null ? Model.Notices.Count() : 0);
+}
+@section styles
+{
+    <style>
+        .search-form-wrapper .field-validation-error {
+            margin-left: 20px
+        }
+    </style>
+}
+
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <!-- SEARCH RESULTS PAGE : begin -->
+        <div class="search-results-page">
+
+            <!-- SEARCH FORM : begin -->
+            <div class="c-content-box m-no-padding search-form-wrapper">
+                <form id="search-form" method="get" action="@Url.Action("Search", "Home")" class="c-search-form">
+                    <div class="form-fields">
+                        @Html.TextBoxFor(x => x.SearchText, null, new { placeholder = "Търси в сайта..." })
+                        <button type="submit" class="submit-btn"><i class="tp tp-magnifier"></i></button>
+                    </div>
+                    @Html.ValidationMessageFor(x => x.SearchText)
+                </form>
+            </div>
+            @if (Model.SearchText == null || Model.SearchText.Length < 3)
+            {
+                <div class="c-alert-message m-warning">
+                    <i class="ico fa fa-exclamation-circle"></i>
+                    <div class="alert-inner">
+                        <p>@resources.GetAppResourcesValue(Resources.AppResourcesKeys.SearchResultErrorMessage)</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- SEARCH FORM : end -->
+                <!-- SEARCH RESULT TITLE : begin -->
+                <h2>@resultsCount @(resultsCount == 1 ? "Резултат" : "Резултата" ) за <strong>"@Model.SearchText"</strong></h2>
+                <!-- SEARCH RESULT : end -->
+                @if (Model.News != null)
+                {
+                    @foreach (var item in Model.News)
+                    {
+                        <div class="c-content-box">
+                            <h3 class="item-title">
+                                <a href="@Url.Action("NewsDetails", "Home", new { id = item.Id})">@item.Title</a>
+                            </h3>
+                            <div class="item-text">
+                                <p>@Html.Raw(item.Content.ReplaceEnd(100))</p>
+                            </div>
+                        </div>
+                    }
+                }
+                @if (Model.Events != null)
+                {
+                    @foreach (var item in Model.Events)
+                    {
+                        <div class="c-content-box">
+                            <h3 class="item-title">
+                                <a href="@Url.Action("EventDetails", "Home", new { id = item.Id})">@item.Title</a>
+                            </h3>
+                            <div class="item-text">
+                                <p>@Html.Raw(item.Content.ReplaceEnd(100))</p>
+                            </div>
+                        </div>
+                    }
+                }
+                @if (Model.Notices != null)
+                {
+                    @foreach (var item in Model.Notices)
+                    {
+                        <div class="c-content-box">
+                            <h3 class="item-title">
+                                <a href="@Url.Action("NoticeDetails", "Home", new { id = item.Id})">@item.Title</a>
+                            </h3>
+                            <div class="item-text">
+                                <p>@Html.Raw(item.Content.ReplaceEnd(100))</p>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+        <!-- SEARCH RESULTS PAGE : end -->
+
+    </div>
+</div>

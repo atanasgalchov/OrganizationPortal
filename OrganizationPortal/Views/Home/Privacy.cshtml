@@ -1,0 +1,13 @@
+﻿@{
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+    ViewData["Title"] = "Политика за поверителност на данните";
+}
+<div id="page-content">
+    <div class="page-content-inner">
+        <div class="c-content-box">
+            <p>
+                @Html.Raw(controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppPrivacyPolicyText))
+            </p>
+        </div>
+    </div>
+</div>

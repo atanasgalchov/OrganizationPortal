@@ -1,0 +1,58 @@
+﻿@model Notice
+@{
+
+    ViewData["Title"] = Model.Name != null && Model.Name != String.Empty ? Model.Name : Model.Title;
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+
+    ViewBag.BreadCrumbsItemDetailsUrl = Url.Action("NoticeDetails", "Home", new { id = Model.Id });
+    ViewBag.BreadCrumbsItemDetailsName = Model.Name != null ? Model.Name : Model.Title;
+}
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <!-- NOTICE DETAIL PAGE : begin -->
+        <div class="notice-detail-page notice-page">
+
+            <!-- NOTICE : begin -->
+            <article class="notice">
+                <div class="notice-inner c-content-box m-no-padding">
+
+                    <!-- NOTICE CORE : begin -->
+                    <div class="notice-core">
+
+                        <!-- NOTICE TITLE : begin -->
+                        <h2 class="notice-title">
+                            <a href="@Url.Action("NoticeDetails", "Home", new { id = Model.Id })">@(Model.Name != null || Model.Name != String.Empty ? Model.Name : Model.Title)</a>
+                        </h2>
+                        <!-- NOTICE TITLE : end -->
+                        <!-- NOTICE CONTENT : begin -->
+                        <div class="notice-content">
+                            @Html.Raw(Model.Content)
+                        </div>
+                        <!-- NOTICE CONTENT : end -->
+
+                    </div>
+                    <!-- NOTICE CORE : end -->
+                    <!-- NOTICE FOOTER : begin -->
+                    <div class="notice-footer">
+                        <div class="notice-footer-inner">
+
+                            <!-- NOTICE DATE : begin -->
+                            <div class="notice-date">
+                                <i class="ico tp tp-clock2"></i>@String.Format("{0: dd MMMM, yyyy}", Model.PublishedDate) in <a href="@Url.Action("Notices", "Home", new { categoryid = Model.CategoryId })">@Model.Category?.Name</a>
+                            </div>
+                            <!-- NOTICE DATE : end -->
+
+                        </div>
+                    </div>
+                    <!-- NOTICE FOOTER : end -->
+
+                </div>
+            </article>
+            <!-- NOTICE : end -->
+
+        </div>
+        <!-- NOTICE DETAIL PAGE : begin -->
+
+    </div>
+</div>

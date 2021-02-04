@@ -1,0 +1,65 @@
+﻿@model List<PhoneNumber>
+@{
+    ViewData["Title"] = "Телефонни Номера";
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+}
+@section styles
+{
+}
+<div id="page-content">
+    <div class="page-content-inner">
+        @{
+            List<PhoneNumber> firstGroup = Model.Count > 3 ? Model.Take(3).ToList() : Model;
+            List<PhoneNumber> secondGroup = Model.Count > 10 ? Model.Skip(3).Take(7).ToList() : Model.Skip(3).ToList();
+            List<PhoneNumber> thirdGroup = Model.Count >= 11 ? Model.Skip(10).ToList() : null;
+
+        }
+
+        @if (firstGroup != null && firstGroup.Count > 0)
+        {
+            <div class="c-definition-list">
+                <div class="c-content-box">
+                    <dl>
+                        @foreach (var item in firstGroup)
+                        {
+                            <dt>@item.Name</dt>
+                            <dd>@item.Number</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        }
+        @if (secondGroup != null && secondGroup.Count > 0)
+        {
+            <div class="c-definition-list">
+                <div class="c-content-box">
+                    <dl>
+                        @foreach (var item in secondGroup)
+                        {
+                            <dt>@item.Name</dt>
+                            <dd>@item.Number</dd>
+                        }
+
+                    </dl>
+                </div>
+            </div>
+        }
+
+        @if (thirdGroup != null && thirdGroup.Count > 0)
+        {
+            <div class="c-definition-list">
+                <div class="c-content-box">
+                    <dl>
+                        @foreach (var item in thirdGroup)
+                        {
+                            <dt>@item.Name</dt>
+                            <dd>@item.Number</dd>
+                        }
+
+                    </dl>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

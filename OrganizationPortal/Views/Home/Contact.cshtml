@@ -1,0 +1,130 @@
+﻿@model ContactViewModel
+@{
+    ViewData["Title"] = "Контакти";
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+}
+<style>
+    .field-validation-error {
+        color: red;
+    }
+
+</style>
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <!-- TEAM MEMBER : begin -->
+        <!-- To use Team Member element without portrait, remove "m-has-portrait" class from the following element
+        and remove element with "member-portrait" class -->
+        <div class="c-team-member m-has-portrait">
+            <div class="c-content-box">
+                <div class="team-member-inner">
+                    <div class="member-portrait">
+                        <img src="@Html.Raw(Model.ProfilePictureUrl != null ? Model.ProfilePictureUrl :  "/Content/Images/default/user.png")" alt="">
+                    </div>
+                    <h3 class="member-name">@Model.FirstName @Model.LastName</h3>
+                    <h4 class="member-role">Кмет</h4>
+                    <div class="member-description">
+                        <p>Моля задайте вашия въпрос, ще ви върнем отговор до 24 часа.</p>
+                    </div>
+                    @*<ul class="member-social">
+                            <li><a href="#" target="_blank"><i class="fa fa-twitter"></i></a></li>
+                            <li><a href="#" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                        </ul>*@
+                </div>
+            </div>
+        </div>
+        <!-- TEAM MEMBER : end -->
+        <!-- CONTACT FORM : begin -->
+        <div class="c-content-box">
+            <form id="contact-form" action="@Url.Action("Contact", "Home")" method="post" class="m-ajax-form">
+
+                <!-- FORM VALIDATION ERROR MESSAGE : begin -->
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <p class="c-alert-message m-warning m-validation-error">
+                        <i class="ico fa fa-exclamation-circle"></i>@ViewBag.ErrorMessage
+                    </p>
+                }
+                @if (ViewBag.SuccessMessage != null)
+                {
+                    <div class="c-alert-message m-success">
+                        <i class="ico fa fa-check-circle"></i>
+                        <div class="alert-inner">
+                            <p>@ViewBag.SuccessMessage</p>
+                        </div>
+                    </div>
+                }
+
+                <!-- NAME FIELD : begin -->
+                <p>
+                    <label for="contact-name">Име <span>*</span></label>
+                    @Html.TextBoxFor(x => x.SenderFirstName, null, new { id = "contact-name", placeholder = "Вашето име ..." })
+                    @Html.ValidationMessageFor(x => x.SenderFirstName)
+                </p>
+                <!-- NAME FIELD : end -->
+                <!-- EMAIL FIELD : begin -->
+                <p>
+                    <label for="contact-email">Поща <span>*</span></label>
+                    @Html.TextBoxFor(x => x.SenderEmail, null, new { id = "contact-email", placeholder = "Имейл за обратна връзка ..." })
+                    @Html.ValidationMessageFor(x => x.SenderEmail)
+                </p>
+                <!-- Honeypot (anti spam) -->
+                @*<p style="display: none;">
+            <label for="contact-email-hp">Поща</label>
+            <input type="email" id="contact-email-hp" name="contact-email-hp">
+        </p>*@
+                <!-- EMAIL FIELD : end -->
+                <!-- PHONE FIELD : begin -->
+                <p>
+                    <label for="contact-phone">Телефон</label>
+                    @Html.TextBoxFor(x => x.SenderPhone, null, new { id = "contact-phone", placeholder = "Телефон за обратна връзка ..." })
+                </p>
+                <!-- PHONE FIELD : end -->
+                <!-- SUBJECT FIELD : begin -->
+                <p>
+                    <label for="contact-subject">Заглавие</label>
+                    @Html.TextBoxFor(x => x.Subject, null, new { id = "contact-subject", placeholder = "Заглавие на съобщението ..." })
+                </p>
+                <!-- SUBJECT FIELD : end -->
+                <!-- MESSAGE FIELD : begin -->
+                <p>
+                    <label for="contact-message">Съобщение <span>*</span></label>
+                    @Html.TextAreaFor(x => x.Message, new { id = "contact-message", placeholder = "Вашето съобщение ..." })
+                    @Html.ValidationMessageFor(x => x.Message)
+                </p>
+                <!-- MESSAGE FIELD : end -->
+                <!-- SUBMIT BUTTON : begin -->
+                <p>
+                    <button type="button" id="contanct-form-submit" class="submit-btn c-button">Изпрати</button>
+                </p>
+                <!-- SUBMIT BUTTON : end -->
+
+            </form>
+        </div>
+        <!-- CONTACT FORM : end -->
+
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            
+            var $form = $('#contact-form');
+
+            $.validator.unobtrusive.parse($form);
+
+            $form
+                .find('#contanct-form-submit')
+                    .click(function (e) {
+                        
+                        if (!$form.valid()) {
+                            return;
+                        }
+
+                        $form.submit();
+                    });
+        });
+    </script>
+}

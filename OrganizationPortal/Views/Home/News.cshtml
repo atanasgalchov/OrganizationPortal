@@ -1,0 +1,114 @@
+﻿@model NewsPageViewModel
+@{
+    ViewData["Title"] = "Новини";
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+}
+@section styles
+{
+    <style>
+        .pagination-arrow a:hover {
+            background-color: #f2f2f2!important;
+        }
+    </style>
+}
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <!-- POST LIST PAGE : begin -->
+        <div class="post-page post-list-page">
+
+            @if (Model.News != null)
+            {
+                @foreach (var news in Model.News)
+                {
+                    <article class="post">
+                        <div class="post-inner c-content-box m-no-padding">
+
+                            <!-- POST IMAGE : begin -->
+                            <div class="post-image">
+                                <a href="@Url.Action("NewsDetails", "Home", new { id =  news.Id })"><img src="@news.MainPictureUrl" alt=""></a>
+                            </div>
+                            <!-- POST IMAGE : end -->
+                            <!-- POST CORE : begin -->
+                            <div class="post-core">
+
+                                <!-- POST TITLE : begin -->
+                                <h2 class="post-title">
+                                    <a href="@Url.Action("NewsDetails", "Home", new { id =  news.Id })">@news.Title</a>
+                                </h2>
+                                <!-- POST TITLE : end -->
+                                <!-- POST CONTENT : begin -->
+                                <div class="post-content">
+                                    <div class="post-content-inner">
+                                        <p>@Html.Raw(news.Content.ReplaceEnd(300))</p>
+                                    </div>
+                                </div>
+                                <!-- POST CONTENT : end -->
+
+                            </div>
+                            <!-- POST CORE : end -->
+                            <!-- POST FOOTER : begin -->
+                            <div class="post-footer">
+                                <div class="post-footer-inner">
+
+                                    <!-- POST INFO : begin -->
+                                    <div class="post-info">
+                                        <i class="ico tp tp-clock2"></i>
+
+                                        <!-- POST DATE : begin -->
+                                        <span class="post-date">
+                                            @String.Format("{0: dd MMMM, yyyy}", news.PublishedDate) в <a href="@Url.Action("News", "Home", new { category =  news.CategoryId })">@news.Category.Name</a>
+                                        </span>
+                                        <!-- POST DATE : end -->
+
+                                    </div>
+                                    <!-- POST INFO : end -->
+
+                                </div>
+                            </div>
+                            <!-- POST FOOTER : end -->
+
+                        </div>
+                    </article>
+                }
+            }
+        </div>
+        <!-- POST LIST PAGE : end -->
+        <!-- PAGINATION : begin -->
+        <div class="c-pagination">
+            <ul>
+                @if (Model.PageInex > 1)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("News", "Home", new { pageindex = (Model.PageInex - 3 > 0 ? Model.PageInex - 3 : 1 ), category = Model.CategoryId })"><i class="fa fa-arrow-left"></i></a>
+                    </li>
+                }
+
+                @if (Model.PageInex > 1)
+                {
+                    <li>
+                        <a href="@Url.Action("News", "Home", new { pageindex = Model.PageInex - 1, category = Model.CategoryId })">@(Model.PageInex - 1)</a>
+                    </li>
+                }
+                <li class="m-active" >
+                    <a href="@Url.Action("News", "Home", new { pageindex = Model.PageInex, category = Model.CategoryId  })">@Model.PageInex</a>
+                </li>
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li>
+                        <a href="@Url.Action("News", "Home", new { pageindex = Model.PageInex + 1, category = Model.CategoryId })">@(Model.PageInex + 1)</a>
+                    </li>
+                }
+
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("News", "Home", new { pageindex = Model.PageInex + ((Model.PageCount - Model.PageInex) > 3 ? 3 : (Model.PageCount - Model.PageInex)), category = Model.CategoryId })"><i class="fa fa-arrow-right"></i></a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <!-- PAGINATION : end -->
+
+    </div>
+</div>

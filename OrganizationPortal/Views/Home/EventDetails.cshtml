@@ -1,0 +1,96 @@
+﻿@model EventViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+
+    ViewBag.BreadCrumbsItemDetailsUrl = Url.Action("EventDetails", "Home", new { id = Model.Id });
+    ViewBag.BreadCrumbsItemDetailsName = Model.Title;
+}
+<div id="page-content">
+    <div class="page-content-inner">
+        <div class="event-detail-page event-page">
+
+            <!-- EVENT : begin -->
+            <div class="event">
+                <div class="event-inner c-content-box m-no-padding">
+
+                    <!-- EVENT IMAGE : begin -->
+                    <div class="event-image">
+                        <a href="@Url.Action("EventDetails", "Home", new { id = Model.Id })">
+                            <img src="@Model.MainPictureUrl" alt="">
+                        </a>
+                    </div>
+                    <!-- EVENT IMAGE : end -->
+                    <!-- EVENT CORE : begin -->
+                    <div class="event-core" style="padding-bottom: 50px">
+
+                        <!-- EVENT INFO : begin -->
+                        <ul class="event-info">
+                            <li class="event-date">
+                                <i class="ico tp tp-calendar-full"></i>
+                                <span>@String.Format("{0:dd MMMM, yyyy}", Model.StartDate)</span>
+                            </li>
+                            <li class="event-time">
+                                <i class="ico tp tp-clock2"></i>@String.Format("{0: hh: mm ч.}", Model.StartDate)
+                            </li>
+                            <li class="event-location">
+                                <i class="ico tp tp-map-marker"></i>
+                                <span>@Model.Location.Name</span>
+                            </li>
+                            @if (Model.TicketPrice > 0)
+                            {
+                                <li class="event-location">
+                                    <i class="ico fa fa-money"></i>@String.Format("{0:c}", Model.TicketPrice)
+                                </li>
+                            }
+                        </ul>
+                        <!-- EVENT INFO : end -->
+                        <!-- EVENT CONTENT : begin -->
+                        <div class="event-content">
+                            @Html.Raw(Model.Content)
+                        </div>
+                        <!-- EVENT CONTENT : end -->
+
+                        <hr />
+
+                        @if (controller.IsSignedIn)
+                        {
+                            <a href="@Url.Action("EditEvent", "Admin", new { id = Model.Id })" class="post-tags" style="float: right; color: #d40041!important">
+                                <i class="ico tp tp-shield" style="color: #d40041!important"></i>
+                                Промени
+                            </a>
+                        }
+                    </div>
+
+                    <!-- EVENT CORE : end -->
+                    <!-- EVENT LOCATION : begin -->
+                    <!-- Add your address into "data-address" attribute
+        Change zoom level with "data-zoom" attribute, bigger number = bigger zoom
+        Change map type with "data-maptype" attribute, values: roadmap | terrain | hybrid | satellite
+        API KEY IS REQUIRED! More info https://developers.google.com/maps/documentation/javascript/get-api-key -->
+                    @if (controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIKey) != null &&
+                      controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIKey) != String.Empty &&
+                      Model.Location.Lang != null && Model.Location.Lat != null)
+                    {
+                        <div class="event-location">
+                            <div class="gmap-canvas"
+                                 data-google-api-key="@controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIKey)"
+                                 data-latitude="@Model.Location.Lat"
+                                 data-longitude="@Model.Location.Lang"
+                                 @*data-address="Main St, Stowe, VT 05672, USA"*@
+                                 data-zoom="17"
+                                 data-maptype="@controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIMapType)"
+                                 data-enable-mousewheel="false"
+                                 id="google-map-0"
+                                 style="position: relative; overflow: hidden;"></div>
+                        </div>
+                    }
+                    <!-- EVENT LOCATION : end -->
+
+                </div>
+            </div>
+            <!-- EVENT : end -->
+
+        </div>
+    </div>
+</div>

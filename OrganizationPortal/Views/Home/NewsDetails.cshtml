@@ -1,0 +1,115 @@
+﻿@model NewsDetailsPageviewModel
+@{
+    NewsViewModel mainNews = Model.MainNews;
+
+    ViewData["Title"] = mainNews.Title;
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+
+    ViewBag.BreadCrumbsItemDetailsUrl = Url.Action("NewsDetails", "Home", new { id = mainNews.Id });
+    ViewBag.BreadCrumbsItemDetailsName = mainNews.Title;
+}
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <!-- POST DETAIL PAGE : begin -->
+        <div class="post-page post-detail-page">
+
+            <!-- POST : begin -->
+            <div class="post">
+                <div class="post-inner c-content-box m-no-padding">
+
+                    <!-- POST IMAGE : begin -->
+                    <div class="post-image">
+                        <img src="@mainNews.MainPictureUrl" alt="">
+                    </div>
+                    <!-- POST IMAGE : end -->
+                    <!-- POST CORE : begin -->
+                    <div class="post-core">
+
+                        <!-- POST CONTENT : begin -->
+                        <div class="post-content">
+                            <div class="post-content-inner">
+                                @Html.Raw(mainNews.Content)
+                            </div>
+                        </div>
+                        <!-- POST CONTENT : end -->
+
+                    </div>
+                    <!-- POST CORE : end -->
+                    <!-- POST FOOTER : begin -->
+                    <div class="post-footer">
+                        <div class="post-footer-inner">
+
+                            <!-- POST INFO : begin -->
+                            <div class="post-info">
+                                <i class="ico tp tp-clock2"></i>
+
+                                <!-- POST DATE : begin -->
+                                <span class="post-date">
+                                    @String.Format("{0:dd MMMM, yyyy}", mainNews.PublishedDate) в <a href="@Url.Action("News", "Home", new { category = mainNews.CategoryId })">@(mainNews.Category != null ? mainNews.Category.Name : "")</a>
+                                </span>
+
+                                @*<span class="post-comments">
+                                 Посетена е @Model.MainNews.VisitedCount пъти
+                                </span>*@
+
+                                @if (controller.IsSignedIn)
+                                {
+                                    <a href="@Url.Action("EditNews", "Admin", new { id = Model.MainNews.Id })" class="post-tags" style="float: right; color: #d40041!important">
+                                        <i class="ico tp tp-shield" style="color: #d40041!important"></i>
+                                        Промени
+                                    </a>
+                                }
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <!-- POST FOOTER : end -->
+
+                </div>
+            </div>
+            <!-- POST : end -->
+            <!-- POST NAVIGATION : begin -->
+            <div class="post-navigation">
+                <div class="c-content-box">
+                    <ul>
+                        <!-- PREVIOUS POST : begin -->
+                        @if (Model.PrevNews != null)
+                        {
+                            <li class="prev m-has-thumb">
+                                <div class="prev-inner">
+                                    <div class="nav-thumb">
+                                        <a href="@Url.Action("NewsDetails", "Home", new { id = Model.PrevNews.Id })"><img src="@Model.PrevNews.MainPictureUrl" alt=""></a>
+                                    </div>
+                                    <h5><a href="@Url.Action("NewsDetails", "Home", new { id = Model.PrevNews.Id })">Предишна новина</a></h5>
+                                    <a href="@Url.Action("NewsDetails", "Home", new { id = Model.PrevNews.Id })">@Model.PrevNews.Title</a>
+                                </div>
+                            </li>
+                        }
+                        <!-- PREVIOUS POST : end -->
+
+                        <!-- NEXT POST : begin -->
+                        @if (Model.NextNews != null)
+                        {
+                            <li class="next m-has-thumb">
+                                <div class="next-inner">
+                                    <div class="nav-thumb">
+                                        <a href="@Url.Action("NewsDetails", "Home", new { id = Model.NextNews.Id })"><img src="@Model.NextNews.MainPictureUrl" alt=""></a>
+                                    </div>
+                                    <h5><a href="@Url.Action("NewsDetails", "Home", new { id = Model.NextNews.Id })">Следваща новина</a></h5>
+                                    <a href="@Url.Action("NewsDetails", "Home", new { id = Model.NextNews.Id })">@Model.NextNews.Title</a>
+                                </div>
+                            </li>
+                        }
+                        <!-- NEXT POST : end -->
+                    </ul>
+                </div>
+            </div>
+            <!-- POST NAVIGATION : end -->
+
+        </div>
+        <!-- POST DETAIL PAGE : end -->
+
+    </div>
+</div>

@@ -1,0 +1,33 @@
+﻿@model EmailMessage<ContactViewModel>
+@{
+    ViewData["Title"] = Model.Subject;
+
+    Layout = "~/Views/Shared/_EmailLayout.cshtml";
+}
+
+ <table width="100%" border="0" cellspacing="0" cellpadding="0"> 
+     <tr> 
+        <td class="h1 pb25" style="color:#444444; font-family:'Merriweather', Georgia,serif; font-size:35px; line-height:42px; text-align:center; padding-bottom:25px;">@Model.Subject</td> 
+     </tr> 
+     <tr> 
+        <td class="text-center pb25" style="color:#666666; font-family:Arial,sans-serif; font-size:16px; line-height:30px; text-align:center; padding-bottom:25px;">
+            @Html.Raw(Model.Model.Message)
+            @* TODO ADD Sender Info ! *@
+        </td> 
+     </tr> 
+     <!-- Button  -->
+     @*<tr> 
+        <td align="center"> 
+            <table class="center" border="0" cellspacing="0" cellpadding="0" style="text-align:center;"> 
+                <tr> 
+                    <td class="text-button" style="background:#ffda5c; color:#444444; font-family:'Merriweather', Georgia,serif; font-size:14px; line-height:18px; padding:12px 15px; text-align:center; border-radius:10px; text-transform:uppercase;">
+                        <a href="#" target="_blank" class="link" style="color:#000001; text-decoration:none;">
+                            <span class="link" style="color:#000001; text-decoration:none;">CLICK HERE</span>
+                        </a>
+                    </td> 
+                </tr> 
+            </table> 
+        </td> 
+     </tr>*@ 
+     <!-- END Button  -->
+ </table> 

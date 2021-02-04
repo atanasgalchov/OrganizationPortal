@@ -1,0 +1,85 @@
+﻿@model AlbumPageViewModel
+@{
+    ViewData["Title"] = Model.Album.Name != null ? Model.Album.Name : String.Empty;
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+
+    ViewBag.BreadCrumbsItemDetailsUrl = Url.Action("Gallery", "Home");
+    ViewBag.BreadCrumbsItemDetailsName = Model.Album.Name;
+}
+
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <div class="gallery-detail-page gallery-page">
+            <div class="c-gallery">
+                <ul class="gallery-images m-layout-masonry m-3-columns">
+                    @if (Model.Photos != null)
+                    {
+                        @foreach (var item in Model.Photos)
+                        {
+                            <li class="gallery-image">
+                                <a href="@item.FileUrl" class="lightbox" title="@(item.Description != null ? item.Description : "")">
+                                    <img src="@item.FileUrl" alt="">
+                                </a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+            @if (Model.AlbumId > 0)
+            {
+                <div class="c-content-box m-no-padding">
+                    <div class="gallery-footer">
+                        <div class="gallery-footer-inner">
+
+                            <!-- GALLERY DATE : begin -->
+                            <div class="gallery-date">
+                                <i class="ico tp tp-clock2"></i>@String.Format("{0:dd MMMM, yyyy}", Model.Album.CreateOn) in
+                                <a href="@Url.Action("Album", "Home", new { albumid = Model.AlbumId })">@Model.Album.Name</a>
+                            </div>
+                            <!-- GALLERY DATE : end -->
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+        <!-- GALLERY DETAIL PAGE : begin -->
+        <!-- PAGINATION : begin -->
+        <div class="c-pagination">
+            <ul>
+                @if (Model.PageInex > 1)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Album", "Home", new { pageindex = (Model.PageInex - 3 > 0 ? Model.PageInex - 3 : 1 ), albumid = Model.AlbumId })"><i class="fa fa-arrow-left"></i></a>
+                    </li>
+                }
+
+                @if (Model.PageInex > 1)
+                {
+                    <li>
+                        <a href="@Url.Action("Album", "Home", new { pageindex = Model.PageInex - 1, albumid = Model.AlbumId })">@(Model.PageInex - 1)</a>
+                    </li>
+                }
+                <li class="m-active">
+                    <a href="@Url.Action("Album", "Home", new { pageindex = Model.PageInex, albumid = Model.AlbumId  })">@Model.PageInex</a>
+                </li>
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li>
+                        <a href="@Url.Action("Album", "Home", new { pageindex = Model.PageInex + 1, albumid = Model.AlbumId })">@(Model.PageInex + 1)</a>
+                    </li>
+                }
+
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Album", "Home", new { pageindex = Model.PageInex + ((Model.PageCount - Model.PageInex) > 3 ? 3 : (Model.PageCount - Model.PageInex)), albumid = Model.AlbumId })"><i class="fa fa-arrow-right"></i></a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <!-- PAGINATION : end -->
+    </div>
+</div>

@@ -1,0 +1,81 @@
+﻿@model DocumentsPageViewModel
+@{
+    ViewData["Title"] = "Документи";
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+}
+
+<div id="page-content">
+    <div class="page-content-inner">
+        <div class="document-page document-list-page">
+            <div class="c-content-box">
+                <ul class="document-list m-has-icons">
+                    @if (Model.Documents != null)
+                    {
+                        @foreach (var item in Model.Documents)
+                        {
+                            <li class="document">
+                                <div class="document-inner">
+
+                                    <!-- DOCUMENT TITLE : begin -->
+                                    <h4 class="document-title m-has-icon">
+                                        <span class="document-icon" title="File">
+                                            <i class="fa @(item.FileExtension == ".pdf" ? "fa-file-pdf-o" : item.FileExtension == ".doc" ? "fa-file-word-o" : "fa-file-text-o")"></i>
+                                        </span>
+                                        <a href="@item.FileUrl" target="_blank">@item.Name</a>
+                                        <span class="document-filesize">(@(item.FileSize / 1000) kB)</span>
+                                    </h4>
+                                    <!-- DOCUMENT TITLE : end -->
+                                    <!-- DOCUMENT INFO : begin -->
+                                    <div class="document-info">
+                                        <ul>
+                                            <li class="document-date">Качено на: <span> @String.Format("{0: dd MMMM, yyyy}", item.UploadedOn)</span></li>
+                                        </ul>
+                                    </div>
+                                    <!-- DOCUMENT INFO : end -->
+
+                                </div>
+                            </li>
+                        }
+                    }                  
+                </ul>
+            </div>
+        </div>
+
+        <!-- POST LIST PAGE : end -->
+        <!-- PAGINATION : begin -->
+        <div class="c-pagination">
+            <ul>
+                @if (Model.PageInex > 1)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Documents", "Home", new { pageindex = (Model.PageInex - 3 > 0 ? Model.PageInex - 3 : 1 ), category = Model.CategoryId })"><i class="fa fa-arrow-left"></i></a>
+                    </li>
+                }
+
+                @if (Model.PageInex > 1)
+                {
+                    <li>
+                        <a href="@Url.Action("Documents", "Home", new { pageindex = Model.PageInex - 1, category = Model.CategoryId })">@(Model.PageInex - 1)</a>
+                    </li>
+                }
+                <li class="m-active">
+                    <a href="@Url.Action("Documents", "Home", new { pageindex = Model.PageInex, category = Model.CategoryId  })">@Model.PageInex</a>
+                </li>
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li>
+                        <a href="@Url.Action("Documents", "Home", new { pageindex = Model.PageInex + 1, category = Model.CategoryId })">@(Model.PageInex + 1)</a>
+                    </li>
+                }
+
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Documents", "Home", new { pageindex = Model.PageInex + ((Model.PageCount - Model.PageInex) > 3 ? 3 : (Model.PageCount - Model.PageInex)), category = Model.CategoryId })"><i class="fa fa-arrow-right"></i></a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <!-- PAGINATION : end -->
+    </div>
+</div>

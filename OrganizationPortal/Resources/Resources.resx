@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AboutText" xml:space="preserve">
+    <value>The target of site is create a digital information center for people living in the municipal and the who are is interested for.</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Sofiq, Bulgariq</value>
+  </data>
+  <data name="AdminWelcomeText" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>Organization</value>
+  </data>
+  <data name="AppPrivacyPolicyText" xml:space="preserve">
+    <value>&lt;h2&gt;ПРИ ПОСЕЩЕНИЕ НА НАИШИЯТ УЕБСАЙТ:&lt;/h2&gt;
+                Използваме "бисквитки" на нашият уебсайт. "Бисквитките" са част от информацията, която
+                интернет сайт прехвърля на твърдия Ви диск за целите на воденето на записи. Използването
+                на "бисквитки" е индустриален стандарт - ще ги намерите почти навсякъде в Интернет.
+                Нашият сайт използват "бисквитки", за да разпозна посетителите, когато посетят
+                отново сайтът. Щом знаем, че сте Вие, можем да персонализираме Вашето онлайн
+                посещение и да го направим по-полезно и удобно за Вас.
+                Възможно е също така да оценим съдържанието и услугите си и да подготвим уебсайтът
+                за посетителите на базата на друга информация, която събираме, като IP адреси, които са
+                номера, присвоени на Вашия компютър, когато използвате Интернет, пикселни маркери (или
+                ясни gif) вида на Интернет браузъра или операционната система, която използвате. Тази
+                информация се събира съвкупно, но можем да я обвържем с личната Ви информация чрез
+                използването на "бисквитки", както е описано по-горе.
+                &lt;/br&gt;
+                &lt;/br&gt;
+                &lt;h2&gt;ЗАЩО ОБРАБОТВАМЕ ВАШИТЕ ЛИЧНИ ДАННИ – ЦЕЛИ:&lt;/h2&gt;
+                1. За да установим и поддържаме отговорни търговски отношения с Вас и да Ви
+                предоставяме качествено, персонализирано и непрекъснато обслужване.
+                &lt;/br&gt;
+                2. За да отговаряме на законовите и регулаторните изисквания.
+                &lt;/br&gt;
+                &lt;/br&gt;
+                &lt;h2&gt;ПРИНЦИПИ ПРИ ОБРАБОТКАТА НА ВАШИТЕ ЛИЧНИ ДАННИ:&lt;/h2&gt;
+                1. Няма да обработваме или разкриваме Вашите лични данни за други цели освен
+                посочените по-горе, освен с Вашето изрично съгласие за всяка отделна допълнителна
+                цел.
+                &lt;/br&gt;
+                2. Ще защитим Вашите лични данни със съответните технически и организационни мерки
+                за сигурност.
+                &lt;/br&gt;
+                3. Ще предприемем подходящи стъпки, за да защитим поверителността на Вашите лични
+                данни, когато взаимодействаме с трети страни.
+                &lt;/br&gt;
+                4. Ще се стремим да пазим Вашите лични данни и да ги поддържаме актуални за целите,
+                посочени по-горе.
+                &lt;/br&gt;
+                5. Ще удовлетворим в разумен срок всяка Ваша молба за достъп до Вашите лични данни.
+                &lt;/br&gt;
+                &lt;/br&gt;
+                &lt;h2&gt;КЪДЕ СЪХРАНЯВАМЕ И ТРАНСФЕРИРАМЕ ВАШИТЕ ЛИЧНИ ДАННИ:&lt;/h2&gt;
+                Ние съхраняваме Вашите лични данни в електронен вид на сървъри с високо ниво на информационната сигурност.
+                Ние не събираме, не обработваме и не разкриваме чувствителни лични данни, като здравен
+                статус, раса, религия, политическа или синдикална принадлежност.
+                &lt;/br&gt;
+                &lt;/br&gt;
+                &lt;h2&gt;ВАШИТЕ ПРАВА:&lt;/h2&gt;
+                Вие имате следните права по отношение обработването на Вашите лични данни:
+                &lt;/br&gt;
+                1. Право да бъдете информиран.
+                &lt;/br&gt;
+                2. Право на достъп.
+                &lt;/br&gt;
+                3. Право на коригиране.
+                &lt;/br&gt;
+                4. Право на изтриване.
+                &lt;/br&gt;
+                5. Право да искате да се ограничи обработката.
+                &lt;/br&gt;
+                6. Право на преносимост на данни.
+                &lt;/br&gt;
+                7. Право на възражение.
+                &lt;/br&gt;
+                8. Права във връзка с автоматизираното вземане на решения и профилиране (когато е
+                приложимо).
+                &lt;/br&gt;
+                Запазваме си правото периодично да актуализираме тази политиката, поради което Ви
+                окуражаваме периодично да я преглеждате, за да установявате как обработваме и
+                защитаваме Вашите лични данни.
+                Ако имате въпроси относно нашата Политика за поверителност или желаете да отправите
+                искане и да упражните права по отношение на Вашите лични данни, моля да се свържете с нас от формата в раздел "Контакти".</value>
+  </data>
+  <data name="AppPrivacyPolicyUserConfirmationText" xml:space="preserve">
+    <value>С натискането върху бутона "Приемам", Вие се съгласявате с използването на "бисквитки" с цел подобряване на цялостното Ви изживяване при сърфиране, измерване на посещенията. Научете повече, като прегледате нашата &lt;a href="{0}" &gt; Политика за поверителност на данните&lt;/a&gt;.</value>
+    <comment>{0} - Link to Privacy policy page</comment>
+  </data>
+  <data name="Area" xml:space="preserve">
+    <value>50</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>Sofiq</value>
+  </data>
+  <data name="Cordinates" xml:space="preserve">
+    <value>42.763071, 23.398598</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Bulgariq</value>
+  </data>
+  <data name="County" xml:space="preserve">
+    <value>Sofiq</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>The capital of bulgariq.</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>organization@gmail.com</value>
+  </data>
+  <data name="EmailRegistrationConfirmContent" xml:space="preserve">
+    <value>{0} {1} your registration is complete.Please wait our administrator approve your registration.</value>
+    <comment>{0} - FirstName {1} - LastName</comment>
+  </data>
+  <data name="EmailRegistrationConfirmEmailContent" xml:space="preserve">
+    <value>Yor registration has been approved by Admin. You can login in our wesite. &lt;a href="{0}"&gt;{1}&lt;/a&gt;</value>
+    <comment>{0} - link to wes site admin section, {1} - text for link</comment>
+  </data>
+  <data name="EmailRegistrationConfirmSubject" xml:space="preserve">
+    <value>Registration confirm in {0}</value>
+    <comment>{0} - AppName</comment>
+  </data>
+  <data name="FacebookPageLink" xml:space="preserve">
+    <value />
+  </data>
+  <data name="HeaderText" xml:space="preserve">
+    <value>Welcome to Organization !</value>
+  </data>
+  <data name="HistoryText" xml:space="preserve">
+    <value>The target of site is create a digital information center for people living in the municipal and the who are is interested for.</value>
+  </data>
+  <data name="HowComeTo" xml:space="preserve">
+    <value>Bus,Car,Flight</value>
+  </data>
+  <data name="Municipal" xml:space="preserve">
+    <value>Sofiq</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>+359 </value>
+  </data>
+  <data name="Population" xml:space="preserve">
+    <value>1500000</value>
+  </data>
+  <data name="SearchResultErrorMessage" xml:space="preserve">
+    <value>Please enter not less 3 symbols.</value>
+  </data>
+  <data name="TimeZome" xml:space="preserve">
+    <value>Eastern European Summer Time</value>
+  </data>
+  <data name="ZIPCode" xml:space="preserve">
+    <value>1000</value>
+  </data>
+</root>

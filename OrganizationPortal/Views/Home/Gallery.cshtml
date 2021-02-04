@@ -1,0 +1,72 @@
+﻿@model GalleryPageViewModel
+@{
+    ViewData["Title"] = "Галерия";
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+}
+
+<div id="page-content">
+    <div class="page-content-inner">
+
+        <!-- GALLERY LIST PAGE : begin -->
+        <div class="gallery-list-page gallery-page">
+            <div class="c-gallery">
+                <!-- You can change the number of columns by changing "m-3-columns" class
+            in the following element to m-2-columns | m-4-columns | m-5-columns : begin -->
+                <ul class="gallery-images m-layout-masonry m-3-columns">
+                    @if (Model.Albums != null)
+                    {
+                        @foreach (var item in Model.Albums)
+                        {
+                            <li class="gallery-image">
+                                <div class="gallery-image-inner">
+                                    <a href="@Url.Action("Album", "Home", new { albumid = item.Id })">
+                                        <img src="@item.Photos.FirstOrDefault().FileUrl" alt="">
+                                    </a>
+                                    <h2 class="gallery-title"><a href="@Url.Action("Album", "Home", new { albumid = item.Id })">@item.Name</a></h2>
+                                </div>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+        <!-- GALLERY LIST PAGE : begin -->
+        <!-- PAGINATION : begin -->
+        <div class="c-pagination">
+            <ul>
+                @if (Model.PageInex > 1)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Gallery", "Home", new { pageindex = (Model.PageInex - 3 > 0 ? Model.PageInex - 3 : 1 ), category = Model.CategoryId })"><i class="fa fa-arrow-left"></i></a>
+                    </li>
+                }
+
+                @if (Model.PageInex > 1)
+                {
+                    <li>
+                        <a href="@Url.Action("Gallery", "Home", new { pageindex = Model.PageInex - 1, category = Model.CategoryId })">@(Model.PageInex - 1)</a>
+                    </li>
+                }
+                <li class="m-active">
+                    <a href="@Url.Action("Gallery", "Home", new { pageindex = Model.PageInex, category = Model.CategoryId  })">@Model.PageInex</a>
+                </li>
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li>
+                        <a href="@Url.Action("Gallery", "Home", new { pageindex = Model.PageInex + 1, category = Model.CategoryId })">@(Model.PageInex + 1)</a>
+                    </li>
+                }
+
+                @if (Model.PageInex < Model.PageCount)
+                {
+                    <li class="pagination-arrow">
+                        <a href="@Url.Action("Gallery", "Home", new { pageindex = Model.PageInex + ((Model.PageCount - Model.PageInex) > 3 ? 3 : (Model.PageCount - Model.PageInex)), category = Model.CategoryId })"><i class="fa fa-arrow-right"></i></a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <!-- PAGINATION : end -->
+
+    </div>
+</div>
+

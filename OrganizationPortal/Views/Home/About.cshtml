@@ -1,0 +1,16 @@
+﻿@{
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+    ViewData["Title"] = "За " + controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName);
+}
+<div id="page-content">
+    <div class="page-content-inner">
+        <div class="c-content-box">
+
+            <h2>@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName)</h2>
+            <p>
+                @Html.Raw(controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AboutText))
+            </p>
+            @Html.Raw(controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.HistoryText))
+        </div>
+    </div>
+</div>

@@ -1,0 +1,207 @@
+﻿@model Photo
+@{
+	ViewData["Title"] = Model.Name != null ? $"{Model.Name}" : "Add Photo";
+	Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section styles
+{
+
+}
+<!-- page content -->
+<div class="right_col" role="main">
+	<div class="page-title">
+		<div class="g-title">
+			<h3>@ViewData["Title"]</h3>
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+	<div class="">
+		<div class="x_panel">
+			<div class="x_title">				
+				<div class="clearfix"></div>
+			</div>
+			<div class="x_content form-content-medium">
+				<br>
+				<form id="edit-photo-form" class="form-vertical" method="post" action="@Url.Action("EditPhoto", "Admin")" type="multipart/form-data">
+					@Html.HiddenFor(x => x.UploadedBy)
+					@Html.HiddenFor(x => x.FileUrl)
+					@Html.HiddenFor(x => x.Id)
+
+                    <div class="form-content">
+                        <div class="form-group">
+                            <label class="control-label" for="Name">Name</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control", placeholder = "Name" })
+                                @Html.ValidationMessageFor(x => x.Name)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Album">Album</label>
+                            <div>
+                                @Html.DropDownListFor(x => x.AlbumId, Model.AlbumsItems != null ? Model.AlbumsItems : new List<SelectListItem>(), new { @class = "form-control", placeholder = "Description" })
+                                @Html.ValidationMessageFor(x => x.AlbumId)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Description">Description</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Description, new { @class = "form-control", placeholder = "Description" })
+                                @Html.ValidationMessageFor(x => x.Description)
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="text-align:center;border-style: dashed;background: gainsboro;">
+                            @Html.TextBoxFor(x => x.PictureFile, new { type = "file", style = "visibility: hidden", accept = "image/x-png,image/jpeg,image/jpg" })
+                            <div>
+                                <img id="main-picture-url" src="@Model.FileUrl" alt="No Image" style="width:100%; height:100%; @Html.Raw(Model.FileUrl == null ? "display: none" : "")" ; />
+                            </div>
+                            <div class="form-footer">
+                                <button class="btn" data-action="delete-image" @Html.Raw(Model.FileUrl == null ? "style=\"display: none\"" : "")>
+                                    <i class="fa fa-edit"></i>Delete
+                                </button>
+
+                                <button class="btn" data-action="upload-image">
+                                    <i class="fa fa-edit"></i>Upload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+					<div class="form-footer">
+						<button class="btn" type="button" data-action="back"><i class="fa fa-backward"></i> Back </button>
+						<button class="btn" id="edit-photo-submit-button" type="submit"><i class="fa fa-save"></i> Save </button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section scripts
+{
+    <script>
+		$(document).ready(function () {
+			var $form = $("#edit-photo-form");
+			
+			$form
+				.find('[data-action]')
+				.click(function (e) {
+					e.preventDefault();
+					var $target = $(e.currentTarget);
+					var action = $target.attr('data-action');
+					
+					if (action == 'back') {
+						window.history.back();
+					}
+					else if (action == 'delete-image') {
+						var id = '@Model.Id';
+						if (id == 0) {
+                            $form.find('[name="PictureFile"]').val('')
+							$form.find('#main-picture-url').attr('src', '').hide();
+							$form.find('[data-action="delete-image"]').hide();
+                            $form.find('[name="PictureFile"]').val('');
+
+							$form.find('[data-action="upload-image"]').show();
+							return;
+						}
+						
+						ASG.Ajax.post({
+							url: '@Url.Action("DeletePhotoFile", "Admin")',
+							data: { id: '@Model.Id' },
+							success(response) {
+								if (response.isSuccess) {
+									$form.find('#main-picture-url').attr('src', '').hide();
+									$form.find('[data-action="delete-image"]').hide();
+
+									$form.find('[data-action="upload-image"]').show();
+									return;
+								}
+							},
+						});
+					}
+					else if (action == 'upload-image') {
+                        $form.find('[name="PictureFile"]').click();
+					}
+				})
+				.end()
+                .find('[name="PictureFile"]')
+				.click(function (e) { this.value = null })
+				.change(function (e) {
+					if (this.files && this.files.length) {
+						var file = this.files[0];
+						var id = '@Model.Id';
+						if (id == 0) {
+							var imageSource = URL.createObjectURL(file);
+							$form.find('#main-picture-url').attr('src', imageSource).show();
+							$form.find('[data-action="upload-image"]').hide();
+							$form.find('[data-action="delete-image"]').show();
+							// TODO  Add Logic for local keeping image.
+							return;
+						}
+
+						var formData = new FormData();
+						formData.append("file", file);
+                        formData.append("fileName", file.name);
+						formData.append("id", id);
+
+						ASG.Ajax.post({
+							url: '@Url.Action("SavePhotoFile", "Admin")',
+							data: formData,
+							processData: false,
+							contentType: false,
+							success(response) {
+								if (response.isSuccess) {
+									location.reload();
+									return;
+								}
+							},
+						});
+					}
+				})
+				.end();
+
+			$form.submit(function (e) {
+				e.preventDefault();
+
+				var $form = $(this);
+				if (!$form.valid()) {
+					return;
+				}
+
+				var settings = {
+                    url: $form.attr('action'),
+                    success(response) {
+                        if (response.isSuccess) {
+                            window.location = response.redirectUrl;
+                            return;
+                        }
+                    },
+				};
+
+				var id = '@Model.Id'
+                var $image = $form.find('[name="PictureFile"]');
+				if (id == 0 && $image.get(0).files[0]) {
+					var reader = new FileReader();
+					reader.readAsDataURL($image.get(0).files[0]);
+					reader.onload = function () {
+
+					var filePath = $image.val();
+						var data = $form.serializeToObject();
+                        data.FileBase64String = reader.result;
+                        data.FileExtension = filePath.substr(filePath.lastIndexOf('.') + 1, filePath.length);
+						settings.data = JSON.stringify(data);
+
+						ASG.Ajax.postJson(settings);
+					};
+				} else {
+					settings.data = JSON.stringify($form.serializeToObject()),
+
+					ASG.Ajax.postJson(settings);
+				}
+            });
+        });
+    </script>
+}

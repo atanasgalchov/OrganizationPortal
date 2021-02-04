@@ -1,0 +1,223 @@
+﻿@model Hall
+@{
+	ViewData["Title"] = Model.Name != null ? $"{Model.Name}" : "Add Hall";
+	Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section styles
+{
+
+}
+<!-- page content -->
+<div class="right_col" role="main">
+	<div class="page-title">
+		<div class="g-title">
+			<h3>@ViewData["Title"]</h3>
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+	<div class="">
+		<div class="x_panel">
+			<div class="x_title">				
+				<div class="clearfix"></div>
+			</div>
+			<div class="x_content form-content-medium">
+				<br>
+				<form id="edit-hall-form" class="form-vertical" method="post" action="@Url.Action("EditHall", "Admin")" type="multipart/form-data">
+					@Html.HiddenFor(x => x.PictureUrl)
+					@Html.HiddenFor(x => x.Id)
+
+                    <div class="form-content">
+                        <div class="form-group">
+                            <label class="control-label" for="Name">Name</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control", placeholder = "Name" })
+                                @Html.ValidationMessageFor(x => x.Name)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Phone">Phone</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Phone, new { @class = "form-control", placeholder = "Phone" })
+                                @Html.ValidationMessageFor(x => x.Phone)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Email">Email</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Email, new { @class = "form-control", placeholder = "Email" })
+                                @Html.ValidationMessageFor(x => x.Email)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Address">Address</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Address, new { @class = "form-control", placeholder = "Address" })
+                                @Html.ValidationMessageFor(x => x.Address)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Description">Description</label>
+                            <div>
+                                @Html.TextAreaFor(x => x.Description, new { @class = "form-control", placeholder = "Description", rows = "4" })
+                                @Html.ValidationMessageFor(x => x.Description)
+                            </div>
+                        </div>
+
+
+                        <div class="form-group" style="text-align:center;border-style: dashed;background: gainsboro;">
+                            @Html.TextBoxFor(x => x.PictureFile, new { type = "file", style = "visibility: hidden", accept = "image/x-png,image/jpeg,image/jpg" })
+                            <div>
+                                <img id="main-picture-url" src="@Model.PictureUrl" alt="No Image" style="width:100%; height:100%; @Html.Raw(Model.PictureUrl == null ? "display: none" : "")" ; />
+                            </div>
+                            <div class="form-footer">
+                                <button class="btn" data-action="delete-image" @Html.Raw(Model.PictureUrl == null ? "style=\"display: none\"" : "")>
+                                    <i class="fa fa-edit"></i>Delete
+                                </button>
+
+                                <button class="btn" data-action="upload-image">
+                                    <i class="fa fa-edit"></i>Upload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+					<div class="form-footer">
+						<button class="btn btn-large" type="button" data-action="back"><i class="fa fa-backward"></i> Back </button>
+						<button class="btn btn-large" id="edit-hall-submit-button" type="submit"><i class="fa fa-save"></i> Save </button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section scripts
+{
+	<script>
+		$(document).ready(function () {
+			var $form = $("#edit-hall-form");
+			
+			$form
+				.find('[data-action]')
+				.click(function (e) {
+					e.preventDefault();
+					var $target = $(e.currentTarget);
+					var action = $target.attr('data-action');
+
+					if (action == 'back') {
+						window.history.back();
+					}
+					else if (action == 'delete-image') {
+						var id = '@Model.Id';
+						if (id == 0) {
+                            $form.find('[name="PictureFile"]').val('')
+							$form.find('#main-picture-url').attr('src', '').hide();
+							$form.find('[data-action="delete-image"]').hide();
+							$form.find('[name="PictureUrl"]').val('');
+
+							$form.find('[data-action="upload-image"]').show();
+							return;
+						}
+
+						ASG.Ajax.post({
+							url: '@Url.Action("DeleteHallImage", "Admin")',
+							data: { id: '@Model.Id' },
+							success(response) {
+								if (response.isSuccess) {
+									$form.find('#main-picture-url').attr('src', '').hide();
+									$form.find('[data-action="delete-image"]').hide();
+
+									$form.find('[data-action="upload-image"]').show();
+									return;
+								}
+							},
+						});
+					}
+					else if (action == 'upload-image') {
+                        $form.find('[name="PictureFile"]').click();
+					}
+				})
+				.end()
+                .find('[name="PictureFile"]')
+				.click(function (e) { this.value = null })
+				.change(function (e) {
+					if (this.files && this.files.length) {
+						var file = this.files[0];
+						var id = '@Model.Id';
+						if (id == 0) {
+							var imageSource = URL.createObjectURL(file);
+							$form.find('#main-picture-url').attr('src', imageSource).show();
+							$form.find('[data-action="upload-image"]').hide();
+							$form.find('[data-action="delete-image"]').show();
+							// TODO  Add Logic for local keeping image.
+							return;
+						}
+
+						var formData = new FormData();
+						formData.append("image", file);
+						formData.append("id", id);
+
+						ASG.Ajax.post({
+							url: '@Url.Action("SaveHallImage", "Admin")',
+							data: formData,
+							processData: false,
+							contentType: false,
+							success(response) {
+								if (response.isSuccess) {
+									location.reload();
+									return;
+								}
+							},
+						});
+					}
+				})
+				.end();
+
+            var $form = $('#edit-hall-form');
+			$form.submit(function (e) {
+				e.preventDefault();
+
+				var $form = $(this);
+				if (!$form.valid()) {
+					return;
+				}
+
+				var settings = {
+                    url: $form.attr('action'),					
+                    success(response) {
+                        if (response.isSuccess) {
+                            window.location = response.redirectUrl;
+                            return;
+                        }
+                    },
+				};
+
+				var id = '@Model.Id'
+                var $image = $form.find('[name="PictureFile"]');
+				if (id == 0 && $image.get(0).files[0]) {
+					var reader = new FileReader();
+					reader.readAsDataURL($image.get(0).files[0]);
+					reader.onload = function () {			
+
+					var filePath = $image.val(); 
+						var data = $form.serializeToObject();
+						data.PictureBase64 = reader.result;
+						data.PictureFileExtension = filePath.substr(filePath.lastIndexOf('.') + 1, filePath.length);
+						settings.data = JSON.stringify(data);
+
+						ASG.Ajax.postJson(settings);
+					};
+				} else {
+					settings.data = JSON.stringify($form.serializeToObject()),
+
+					ASG.Ajax.postJson(settings);
+				}
+            });
+        });
+	</script>
+}

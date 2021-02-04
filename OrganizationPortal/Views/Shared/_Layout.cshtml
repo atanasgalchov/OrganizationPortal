@@ -1,0 +1,926 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Localization;
+@using Newtonsoft.Json;
+@{
+    OrganizationPortal.Controllers.BaseController controller = ViewBag.Controller;
+    Resources resources = controller.Resources as Resources;
+
+    string action = ViewBag.Action;
+    string controllerName = controller.GetType().Name.Replace("Controller", "");
+
+    bool isHomePage = action == "Index" && controllerName == "Home";
+    string headerText = isHomePage ? controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.HeaderText.ToString()) : (string)ViewData["Title"];
+
+    bool isShowGMap = action == "Index" &&
+                       controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Cordinates.ToString()) != null &&
+                       controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Cordinates.ToString()).Split(" ").Length == 2 &&
+                       controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIKey) != null &&
+                       controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIKey) != String.Empty;
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+
+    <style>
+        .gm-style .gm-style-mtc label, .gm-style .gm-style-mtc div {
+            font-weight: 400
+        }
+    </style>
+    <style>
+        .gm-control-active > img {
+            box-sizing: content-box;
+            display: none;
+            left: 50%;
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%,-50%)
+        }
+
+            .gm-control-active > img:nth-child(1) {
+                display: block
+            }
+
+        .gm-control-active:hover > img:nth-child(1), .gm-control-active:active > img:nth-child(1) {
+            display: none
+        }
+
+        .gm-control-active:hover > img:nth-child(2), .gm-control-active:active > img:nth-child(3) {
+            display: block
+        }
+    </style>
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Google+Sans:400,500,700">
+    <style>
+        .gm-ui-hover-effect {
+            opacity: .6
+        }
+
+            .gm-ui-hover-effect:hover {
+                opacity: 1
+            }
+    </style>
+    <style>
+        .gm-style .gm-style-cc span, .gm-style .gm-style-cc a, .gm-style .gm-style-mtc div {
+            font-size: 10px;
+            box-sizing: border-box
+        }
+    </style>
+    <style>
+        @@media print {
+            .gm-style .gmnoprint, .gmnoprint {
+                display: none
+            }
+        }
+
+        @@media screen {
+            .gm-style .gmnoscreen, .gmnoscreen {
+                display: none
+            }
+        }
+    </style>
+    <style>
+        .gm-style-pbc {
+            transition: opacity ease-in-out;
+            background-color: rgba(0,0,0,0.45);
+            text-align: center
+        }
+
+        .gm-style-pbt {
+            font-size: 22px;
+            color: white;
+            font-family: Roboto,Arial,sans-serif;
+            position: relative;
+            margin: 0;
+            top: 50%;
+            -webkit-transform: translateY(-50%);
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%)
+        }
+    </style>
+    <style>
+        .gm-style img {
+            max-width: none;
+        }
+
+        .gm-style {
+            font: 400 11px Roboto, Arial, sans-serif;
+            text-decoration: none;
+        }
+    </style>
+    <style>
+        .header-tools .header-search .field-validation-error {
+            background-color: #ffdfe0
+        }
+    </style>
+
+    @RenderSection("styles", false)
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString()) | @ViewData["Title"]</title>
+    <link rel="icon" href="~/Content/Images/logo/logo.png" type="image/ico" />
+
+    <!-- Bootstrap -->
+    <link href="/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- GOOGLE FONTS : begin -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,700,700italic&amp;subset=latin,latin-ext" rel="stylesheet" type="text/css">
+    <!-- GOOGLE FONTS : end -->
+    <!-- STYLESHEETS : begin -->
+    <link rel="stylesheet" type="text/css" href="~/css/style.css">
+    <!-- To change to a different pre-defined color scheme, change "red.css" in the following element to blue.css | bluegray.css | green.css | orange.css
+    Please refer to the documentation to learn how to create your own color schemes -->
+    <link rel="stylesheet" type="text/css" href="~/css/skins/@controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.StyleSkinFileUrl.ToString())">
+    <link rel="stylesheet" type="text/css" href="~/css/custom.css">
+    <!-- NProgress -->
+    <link href="/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" type="text/css" href="library/css/oldie.css">
+    <![endif]-->
+    <!-- STYLESHEETS : end -->
+</head>
+<body data-gr-c-s-loaded="true">
+
+    <!-- HEADER : begin -->
+    <!-- If you want to use Standard Header Menu, add "m-has-standard-menu" class to the following element (see home-2.html template for example)
+    Remove "m-has-gmap" class if you are not using Google Map in this template -->
+    <header id="header" class="m-has-header-tools @*m-has-gmap*@">
+        <div class="header-inner">
+            @Html.Partial("_CookieConsentPartial")
+            <!-- HEADER CONTENT : begin -->
+            <div class="header-content">
+                <div class="c-container">
+                    <div class="header-content-inner">
+
+                        <!-- HEADER BRANDING : begin -->
+                        <!-- Logo dimensions can be changed in library/css/custom.css
+                        You can remove "m-large-logo" class from following element to use standard (smaller) version of logo -->
+                        <div class="header-branding m-large-logo">
+                            <a href="@Url.Action("Index", "Home")">
+                                <span>
+                                    <img src="\Content\Images\logo\logo.png" data-hires="\Content\Images\logo\logo.png" alt="@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString())">
+                                </span>
+                            </a>
+                        </div>
+                        <!-- HEADER BRANDING : end -->
+                        <!-- HEADER TOGGLE HOLDER : begin -->
+                        <div class="header-toggle-holder">
+
+                            <!-- HEADER TOGGLE : begin -->
+                            <button type="button" class="header-toggle">
+                                <i class="ico-open tp tp-menu"></i>
+                                <i class="ico-close tp tp-cross"></i>
+                                <span>Меню</span>
+                            </button>
+                            <!-- HEADER TOGGLE : end -->
+                            @if (isShowGMap == true)
+                            {
+                                <!-- HEADER GMAP SWITCHER : begin -->
+                                <button type="button" class="header-gmap-switcher" title="Show on Map">
+                                    <i class="ico-open tp tp-map2"></i>
+                                    <i class="ico-close tp tp-cross"></i>
+                                </button>
+                                <!-- HEADER GMAP SWITCHER : end -->
+                            }
+
+
+                        </div>
+                        <!-- HEADER TOGGLE HOLDER : end -->
+                        <!-- HEADER MENU : begin -->
+                        <!-- This menu is used as both mobile menu (displayed on devices with screen width < 991px)
+                        and standard header menu (only if Header element has "m-has-standard-menu" class) -->
+                        <nav class="header-menu">
+                            <ul>
+                                <li class="m-has-submenu @(action == "Index" ? "m-active" : "")">
+                                    <a href="@Url.Action("Index", "Home")">Начало</a>
+                                </li>
+                                <li class="m-has-submenu @(action == "Documents" || action == "PhoneNumbers" || action == "Contact" ? "m-active" : "")">
+                                    <a href="@Url.Action("Contact", "Home")">Администрация</a>
+                                    <ul>
+                                        @*<li><a href="town-hall.html">Town Hall</a></li>
+                                            <li><a href="town-council.html">Town Council</a></li>*@
+                                        <li class="@(action == "PhoneNumbers" ? "m-active" : "")">
+                                            <a href="@Url.Action("PhoneNumbers", "Home")">Телефонни Номера</a>
+                                        </li>
+                                        <li class="m-penultimate @(action == "Documents" ? "m-active" : "")">
+                                            <a href="@Url.Action("Documents", "Home")">Документи</a>
+                                        </li>
+                                        <li class="m-last @(action == "Contact" ? "m-active" : "")">
+                                            <a href="@Url.Action("Contact", "Home")">Контакти</a>
+                                        </li>
+                                    </ul>
+                                    <button class="submenu-toggle" type="button"><i class="fa"></i></button>
+                                </li>
+                                <li class="m-penultimate m-has-submenu  @(action == "News" || action == "Notices" || action == "NoticeDetails" || action == "Events" || action == "EventDetails" || action == "Gallery" ? "m-active" : "")">
+                                    <a href="@Url.Action("News", "Home")">Общество</a>
+                                    <ul>
+                                        <li class="@(action == "News" ? "m-active" : "")">
+                                            <a href="@Url.Action("News", "Home")">Новини</a>
+                                        </li>
+                                        <li class="@(action == "Notices" || action == "NoticeDetails" ? "m-active" : "")">
+                                            <a href="@Url.Action("Notices", "Home")">Известия</a>
+                                        </li>
+                                        <li class="m-penultimate @(action == "Events" || action == "EventDetails" ? "m-active" : "")">
+                                            <a href="@Url.Action("Events", "Home")">Събития</a>
+                                        </li>
+                                        <li class="m-last @(action == "Gallery" || action == "Album" ? "m-active" : "")">
+                                            <a href="@Url.Action("Gallery", "Home")">Галерия</a>
+                                        </li>
+                                    </ul>
+                                    <button class="submenu-toggle" type="button"><i class="fa"></i></button>
+                                </li>
+                                <li class="m-last m-has-submenu @(action == "About" ? "m-active" : "")">
+                                    <a href="@Url.Action("About", "Home")">За нас</a>
+                                    @*<ul>
+                                            <li class="@(action == "About" ? "m-active" : "") >
+                                                <a href="@Url.Action("About", "Home")">За нас</a>
+                                            </li>
+                                            <li><a href="virtual-tour.html">Virtual Tour</a></li>
+                                            <li class="m-penultimate"><a href="town-history.html">Town History</a></li>
+                                            <li class="m-last"><a href="elements.html">Elements</a></li>
+                                        </ul>*@
+                                    @*<button class="submenu-toggle" type="button"><i class="fa"></i></button>*@
+                                </li>
+                                @if (controller.IsSignedIn)
+                                {
+                                    <li class="m-has-submenu">
+                                        <a href="@Url.Action("Index", "Admin")" style="color: #d40041"><i class="widget-ico tp tp-shield"></i> Админ</a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                        <!-- HEADER MENU : end -->
+                        <!-- HEADER TOOLS : begin -->
+                        <div class="header-tools">
+                            <div class="header-toolbar-item header-languages" data-role="language-switcher-container">
+                                @{
+                                    // Culture contains the information of the requested culture
+                                    string culture = CookieRequestCultureProvider.ParseCookieValue(controller.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName]?.ToString())?.Cultures?.FirstOrDefault().Value;
+                                 }
+                                <span class="screen-reader-text">Choose language:</span>
+                                <ul class="header-languages-list">
+                                    <li class="header-languages-item @(culture == "bg" || culture == null ? "header-languages-item--active" : "")">
+                                        <a href="#" class="header-languages-item-link" data-action="set-bg-language">BG</a>
+                                    </li>
+                                    <li class="header-languages-item @(culture == "en" ? "header-languages-item--active" : "")">
+                                        <a href="#" class="header-languages-item-link" data-action="set-en-language">EN</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- HEADER SEARCH : begin -->
+                            <div class="header-search">
+                                <form id="search-form" method="get" action="@Url.Action("Search", "Home")" class="c-search-form">
+                                    <div class="form-fields">
+                                        <input type="text"
+                                               value="@(action == "Search" ? ViewBag.SearchText : "")"
+                                               placeholder="Търси в сайта..."
+                                               name="SearchText"
+                                               data-val="true"
+                                               data-val-minlength="@resources.GetAppResourcesValue(Resources.AppResourcesKeys.SearchResultErrorMessage)"
+                                               data-val-minlength-min="3"
+                                               data-val-required=" "
+                                               style="min-width: 265px;">
+                                        <button type="submit" class="submit-btn"><i class="tp tp-magnifier"></i></button>
+                                    </div>
+                                    @Html.ValidationMessage("SearchText")
+                                </form>
+                            </div>
+                            <!-- HEADER SEARCH : end -->
+                            <!-- HEADER GMAP SWITCHER : begin -->
+                            <!-- Remove following block if you are not using Google Map in this template -->
+                            @if (isShowGMap == true)
+                            {
+                                <button type="button" class="header-gmap-switcher" title="Show on Map">
+                                    <i class="ico-open tp tp-map2"></i>
+                                    <i class="ico-close tp tp-cross"></i>
+                                    <span></span>
+                                </button>
+                            }
+                            <!-- HEADER GMAP SWITCHER : end -->
+
+                        </div>
+                        <!-- HEADER TOOLS : end -->
+
+                    </div>
+                </div>
+            </div>
+            <!-- HEADER CONTENT : end -->
+            <!-- HEADER GMAP : begin -->
+            <!-- Add your address into "data-address" attribute
+                Change zoom level with "data-zoom" attribute, bigger number = bigger zoom
+                Change map type with "data-maptype" attribute, values: roadmap | terrain | hybrid | satellite
+                API KEY IS REQUIRED! More info https://developers.google.com/maps/documentation/javascript/get-api-key -->
+            @if (isShowGMap)
+            {
+                @* AIzaSyCAOGo62M3J5GJzJOI0Tq6u6joeUiwTlIQ *@
+                <div class="header-gmap">
+                    <div class="gmap-canvas"
+                         data-google-api-key="@controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIKey)"
+                         data-latitude="@(controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Cordinates.ToString()).Split(" ")[0])"
+                         data-longitude="@(controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Cordinates.ToString()).Split(" ")[1])"
+                         @*data-address="Main St, Stowe, VT 05672, USA"*@
+                         data-zoom="@controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIZoom)"
+                         data-maptype="@controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIMapType)"
+                         data-enable-mousewheel="@controller.AppSettings.GetAppSettingValue(AppSettings.AppSettingsKeys.GMapsAPIEnableMousewheel)"
+                         id="google-map-0"
+                         style="position: relative; overflow: hidden;">
+                    </div>
+                </div>
+            }
+            <!-- HEADER GMAP : end -->
+
+        </div>
+    </header>
+    <!-- HEADER : end -->
+    <!-- HEADER BG : begin -->
+    <div class="header-bg">
+
+        <!-- HEADER IMAGE : begin -->
+        <!-- To add more images just copy and edit elements with "image-layer" class (see home-2.html template for example)
+        Change autoplay speed with "data-autoplay" attribute (in seconds), works only if there are more than one image -->
+        <div class="header-image" data-autoplay="10">
+            <div class="image-layer" style="background-image: url('/Content/Images/default/header-image.png');"></div>
+            @*<div class="image-layer" style="background-image: url('/Content/Images/default/header-image2.png');"></div>*@
+            <!-- div class="image-layer" style="background-image: url( 'images/header-02.jpg' );"></div -->
+        </div>
+        <!-- HEADER IMAGE : begin -->
+
+    </div>
+    <!-- HEADER BG : end -->
+    <!-- CORE : begin -->
+    <div id="core">
+        <div class="c-container">
+            <div class="row">
+
+                <!-- MIDDLE COLUMN : begin -->
+                <div class="middle-column col-md-6 col-md-push-3">
+
+                    <!-- PAGE HEADER : begin -->
+                    <div id="page-header">
+
+                        <!-- PAGE TITLE : begin -->
+                        <div class="page-title">
+                            <h1>@headerText</h1>
+                        </div>
+                        <!-- PAGE TITLE : end -->
+                        @if (!isHomePage)
+                        {
+                            <div class="breadcrumbs">
+                                <ul>
+                                    <li class="home"><a href="@Url.Action("", controllerName)">@controllerName</a></li>
+                                    <li><a href="@Url.Action(action, controllerName)">@action.Replace("Details", "")</a></li>
+                                    @if (ViewBag.BreadCrumbsItemDetailsUrl != null && ViewBag.BreadCrumbsItemDetailsName != null)
+                                    {
+                                        <li><a href="@ViewBag.BreadCrumbsItemDetailsUrl">@ViewBag.BreadCrumbsItemDetailsName</a></li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                    <!-- PAGE HEADER : end -->
+
+                    @RenderBody()
+
+                    <hr class="c-separator m-margin-top-small m-margin-bottom-small m-transparent hidden-lg hidden-md">
+
+                </div>
+                <!-- MIDDLE COLUMN : end -->
+                <!-- LEFT COLUMN : begin -->
+                <div class="left-column col-md-3 col-md-pull-6">
+
+                    <!-- SIDE MENU : begin -->
+                    <nav class="side-menu m-left-side m-show-submenu">
+                        <ul>
+                            <li class="m-has-submenu @(action == "Index" ? "m-active" : "")">
+                                <a href="@Url.Action("Index", "Home")">Начало</a>
+                            </li>
+                            <li class="m-has-submenu @(action == "Documents" || action == "PhoneNumbers" || action == "Contact" ? "m-active" : "")">
+                                <a href="@Url.Action("Contact", "Home")">Администрация</a>
+                                <ul>
+                                    @*<li><a href="town-hall.html">Town Hall</a></li>
+                                        <li><a href="town-council.html">Town Council</a></li>*@
+                                    <li class="@(action == "PhoneNumbers" ? "m-active" : "")">
+                                        <a href="@Url.Action("PhoneNumbers", "Home")">Телефонни Номера</a>
+                                    </li>
+                                    <li class="@(action == "Documents" ? "m-active" : "")">
+                                        <a href="@Url.Action("Documents", "Home")">Документи</a>
+                                    </li>
+                                    <li class="@(action == "Contact" ? "m-active" : "")">
+                                        <a href="@Url.Action("Contact", "Home")">Koнтакти</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="m-has-submenu @(action == "News" || action == "Notices" || action == "NoticeDetails" || action == "Events" || action == "EventDetails" || action == "Gallery" || action == "Album" ? "m-active" : "")">
+                                <a href="@Url.Action("News", "Home")">Общество</a>
+                                <ul>
+                                    <li class="@(action == "News" ? "m-active" : "")">
+                                        <a href="@Url.Action("News", "Home")">Новини</a>
+                                    </li>
+                                    <li class="@(action == "Notices" || action == "NoticeDetails" ? "m-active" : "")">
+                                        <a href="@Url.Action("Notices", "Home")">Известия</a>
+                                    </li>
+                                    <li class="@(action == "Events" || action == "EventDetails" ? "m-active" : "")">
+                                        <a href="@Url.Action("Events", "Home")">Събития</a>
+                                    </li>
+                                    <li class="@(action == "Gallery"  || action == "Album" ? "m-active" : "")">
+                                        <a href="@Url.Action("Gallery", "Home")">Галерия</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="m-has-submenu @(action == "About" ? "m-active" : "")">
+                                <a href="@Url.Action("About", "Home")">За нас</a>
+                                @*<ul>
+                                        <li class="@(action == "About" ? "m-active" : "")">
+                                            <a href="@Url.Action("About", "Home")">За нас</a>
+                                        </li>
+                                        <li><a href="virtual-tour.html">Virtual Tour</a></li>
+                                        <li><a href="town-history.html">Town History</a></li>
+                                        <li><a href="elements.html">Elements</a></li>
+                                    </ul>*@
+                            </li>
+                            @if (controller.IsSignedIn)
+                            {
+                                <li class="m-has-submenu">
+                                    <a href="@Url.Action("Index", "Admin")" style="color: #d40041"><i class="widget-ico tp tp-shield"></i> Админ</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                    <!-- SIDE MENU : end -->
+                    <!-- LEFT SIDEBAR : begin -->
+                    <aside class="sidebar">
+                        <div class="widget-list">
+                            @if (action != "Documents")
+                            {
+                                <!-- DOCUMENTS WIDGET : begin -->
+                                <div class="widget documents-widget">
+                                    <div class="widget-inner">
+                                        <h3 class="widget-title m-has-ico"><i class="widget-ico tp tp-papers"></i>Документи</h3>
+                                        <div class="widget-content">
+                                            @if (controller.GetLayoutDocuments() != null && controller.GetLayoutDocuments().Count > 0)
+                                            {
+                                                <ul class="document-list m-has-icons">
+                                                    @foreach (var documnet in controller.GetLayoutDocuments())
+                                                    {
+                                                        <li class="document">
+                                                            <div class="document-inner">
+                                                                <div class="document-icon" title="File">
+                                                                    <i class="fa @(documnet.FileExtension == ".pdf" ? "fa-file-pdf-o" : documnet.FileExtension == ".doc" ? "fa-file-word-o" : "fa-file-text-o")"></i>
+                                                                </div>
+                                                                <h4 class="document-title">
+                                                                    <a href="@documnet.FileUrl" target="_blank">@documnet.Name</a>
+                                                                    <span class="document-filesize">(@(documnet.FileSize / 1000) kB)</span>
+                                                                </h4>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                                <p class="show-all-btn"><a href="@Url.Action("Documents", "Home")">Виж всички документи</a></p>
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- DOCUMENTS WIDGET : end -->
+                            }
+
+                            @if (action == "Index")
+                            {
+                                <!-- LOCALE INFO WIDGET : begin -->
+                                <!-- to remove background image from this widget, simply remove "m-has-bg" class from the following element -->
+                                <div class="widget locale-info-widget m-has-bg">
+                                    <div class="widget-inner" style="background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%,rgba(0,0,0,0.5) 100%), url('/Content/Images/default/side-info.jpg'); background-size: cover">
+                                        <h3 class="widget-title m-has-ico"><i class="widget-ico tp tp-map-marker"></i>Информация</h3>
+                                        <div class="widget-content">
+                                            <ul>
+                                                <li>
+                                                    <div class="row-title"><h4>Държава</h4></div>
+                                                    <div class="row-value">@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Country.ToString())</div>
+                                                </li>
+                                                <li>
+                                                    <div class="row-title"><h4>Област</h4></div>
+                                                    <div class="row-value">@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.County.ToString())</div>
+                                                </li>
+                                                <li>
+                                                    <div class="row-title"><h4>Община</h4></div>
+                                                    <div class="row-value">@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Municipal.ToString())</div>
+                                                </li>
+                                                <li>
+                                                    <div class="row-title"><h4>Area</h4></div>
+                                                    <div class="row-value">(@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Area.ToString()) km<sup>2</sup>)</div>
+                                                </li>
+                                                <li>
+                                                    <div class="row-title"><h4>Население</h4></div>
+                                                    <div class="row-value">@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Population.ToString())</div>
+                                                </li>
+                                                <li>
+                                                    <div class="row-title"><h4>Кординати</h4></div>
+                                                    <div class="row-value">@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Cordinates.ToString())</div>
+                                                </li>
+                                                <li>
+                                                    <div class="row-title"><h4>Часова зона</h4></div>
+                                                    <div class="row-value">@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.TimeZome.ToString())</div>
+                                                </li>
+                                                <li>
+                                                    <div class="row-title"><h4>ZIP код</h4></div>
+                                                    <div class="row-value">@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.ZIPCode.ToString())</div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- LOCALE INFO WIDGET : end -->
+                            }
+                            @if (action != "NoticeDetails" && action != "PhoneNumbers")
+                            {
+                                <!-- FEATURED GALLERY WIDGET : begin -->
+                                <div class="widget featured-gallery-widget">
+                                    <div class="widget-inner">
+                                        <h3 class="widget-title m-has-ico"><i class="widget-ico tp tp-pictures"></i>Галерия</h3>
+                                        <div class="widget-content">
+                                            <div class="gallery-image" title="Streets of TownPress">
+                                                @if (controller.GetLayoutPhotos() != null)
+                                                {
+                                                    @foreach (var photo in controller.GetLayoutPhotos())
+                                                    {
+                                                        <a href="@Url.Action("Album", "Home", new { albumid =  photo.AlbumId })"><img src="@photo.FileUrl" alt=""></a>
+                                                    }
+                                                }
+                                            </div>
+                                            <p class="show-all-btn"><a href="@Url.Action("Gallery", "Home")">Виж цялата галерия</a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- FEATURED GALLERY WIDGET : end -->
+                            }
+
+
+                        </div>
+                    </aside>
+                    <!-- LEFT SIDEBAR : end -->
+
+                </div>
+                <!-- LEFT COLUMN : end -->
+                <!-- RIGHT COLUMN : begin -->
+                <div class="right-column col-md-3">
+
+                    <!-- RIGHT SIDEBAR : begin -->
+                    <aside class="sidebar">
+                        <div class="widget-list">
+                            @if (action == "News" || action == "NewsDetails" || action == "Events" || action == "EventDetails" || action == "Notices" || action == "NoticeDetails" || action == "Gallery" || action == "Album" || action == "Documents")
+                            {
+                                string actionForCategories = action;
+                                if (action == "NoticeDetails") { actionForCategories = "Notices"; }
+                                if (action == "NewsDetails") { actionForCategories = "News"; }
+                                if (action == "EventDetails") { actionForCategories = "Events"; }
+                                if (action == "Album") { actionForCategories = "Gallery"; }
+                                List<CategoryViewModel> categories = controller.GetLayoutCategories(actionForCategories);
+                                if (categories != null)
+                                {
+                                    <div class="widget categories-widget">
+                                        <div class="widget-inner">
+                                            <h3 class="widget-title m-has-ico">
+                                                <i class="widget-ico tp tp-list4"></i>Категории
+                                            </h3>
+                                            <div class="widget-content">
+                                                <ul>
+                                                    @foreach (var category in categories)
+                                                    {
+                                                        <li>
+                                                            <a href="@Url.Action(actionForCategories, "Home", new { category = category.Id })">@category.Name</a>
+                                                            (@category.ItemsCount)
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            <!-- NOTICES WIDGET : begin -->
+                            @if (action != "Album" && action != "Notices" && action != "EventDetails")
+                            {
+                                <div class="widget notices-widget">
+                                    <div class="widget-inner">
+                                        <h3 class="widget-title m-has-ico"><i class="widget-ico tp tp-bullhorn"></i>Последни Известия</h3>
+                                        <div class="widget-content">
+                                            <ul class="notice-list">
+                                                @foreach (var notice in controller.GetLayoutNotice())
+                                                {
+                                                    <li class="notice">
+                                                        <div class="notice-inner">
+                                                            <h4 class="notice-title"><a href="@Url.Action("NoticeDetails", "Home", new { id = notice.Id })">@notice.Name</a></h4>
+                                                            <span class="notice-date">@String.Format("{0:dd MMMM, yyyy}", notice.ModifyDate != null ? notice.ModifyDate : notice.PublishedDate) @*May 14, 2015*@</span>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                            <p class="show-all-btn"><a href="@Url.Action("Notices", "Home")">Виж всички известия</a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <!-- NOTICES WIDGET : end -->
+                            @if (action != "Album" && action != "NoticeDetails" && action != "EventDetails" && action != "Documents" && action != "PhoneNumbers")
+                            {
+                                <!-- SOONEST EVENT WIDGET : begin -->
+                                <div class="widget image-widget">
+                                    <div class="widget-inner">
+                                        <div class="widget-content layout-soonest-event-content">
+                                            @{ EventViewModel soonEvent = controller.GetLayoutEvents().Where(x => x.MainPictureUrl != null && x.MainPictureUrl != String.Empty).FirstOrDefault(); }
+                                            <a href="@Url.Action("EventDetails", "Home", new { Id = soonEvent?.Id })">
+                                                <img src="@soonEvent?.MainPictureUrl" alt="">
+                                                <div class="layout-soonest-event-title">@soonEvent?.Title </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- SOONEST EVENT WIDGET : end -->
+                            }
+
+                            @if (action == "Album")
+                            {
+                                <div class="widget galleries-widget">
+                                    <div class="widget-inner">
+                                        <h3 class="widget-title m-has-ico"><i class="widget-ico tp tp-pictures"></i>Последно добавени албуми</h3>
+                                        <div class="widget-content">
+                                            <ul>
+                                                @if (controller.GetLayoutAlbums() != null)
+                                                {
+                                                    foreach (var album in controller.GetLayoutAlbums())
+                                                    {
+                                                        <li class="gallery">
+                                                            <div class="gallery-inner">
+                                                                <a href="@Url.Action("Album", "Home", new { albumid = album.Id })" class="gallery-image"><img src="@album.Photos.FirstOrDefault().FileUrl" alt=""></a>
+                                                                <h4 class="gallery-title">
+                                                                    <a href="@Url.Action("Album", "Home", new { albumid = album.Id })">@album.Name</a>
+                                                                </h4>
+                                                                <div class="gallery-date">@String.Format("{0:dd MMMM, yyyy}", album.CreateOn)</div>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                }
+                                            </ul>
+                                            <p class="show-all-btn"><a href="@Url.Action("Gallery", "Home")">Виж всички албуми</a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (action == "Index" || action == "EventDetails" || action == "PhoneNumbers")
+                            {
+                                <!-- EVENTS WIDGET : begin -->
+                                <div class="widget events-widget">
+                                    <div class="widget-inner">
+                                        <h3 class="widget-title m-has-ico"><i class="widget-ico tp tp-calendar-full"></i>Скорошни Събития</h3>
+                                        <div class="widget-content">
+                                            <ul class="event-list">
+                                                @foreach (var eventItem in controller.GetLayoutEvents())
+                                                {
+                                                    <li class="event m-has-date">
+                                                        <div class="event-inner">
+                                                            <div class="event-date" title="@String.Format("{0:d MMM, yyyy}", eventItem.StartDate)">
+                                                                <span class="event-month">@eventItem.StartDate.Value.Month</span>
+                                                                <span class="event-day">@eventItem.StartDate.Value.Day</span>
+                                                            </div>
+                                                            <h4 class="event-title"><a href="@Url.Action("EventDetails", "Home", new { Id = eventItem.Id })">@eventItem.Title</a></h4>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                            <p class="show-all-btn"><a href="@Url.Action("Events", "Home")">Виж всички събития</a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- EVENTS WIDGET : end -->
+                            }
+                        </div>
+                    </aside>
+                    <!-- RIGHT SIDEBAR : end -->
+
+                </div>
+                <!-- RIGHT COLUMN : end -->
+
+            </div>
+        </div>
+    </div>
+    <!-- CORE : end -->
+    <!-- FOOTER : begin -->
+    <footer id="footer" class="m-has-bg">
+        <div class="footer-bg">
+            <div class="footer-inner">
+
+                <!-- FOOTER TOP : begin -->
+                <div class="footer-top">
+                    <div class="c-container">
+                        @{
+                            int colNumber = !controller.IsSignedIn ? 3 : 4;
+                            string colClass = $"col-md-{colNumber}";
+                        }
+                        <!-- BOTTOM PANEL : begin -->
+                        <div id="bottom-panel">
+                            <div class="bottom-panel-inner">
+                                <div class="row">
+                                    <div class="@colClass">
+                                        <div class="widget">
+                                            <hr class="c-separator m-transparent hidden-lg hidden-md">
+                                            <div class="widget-inner">
+                                                <h3 class="widget-title">За @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString())</h3>
+                                                <div class="widget-content">
+                                                    @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AboutText.ToString())
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="widget-col @colClass">
+                                        <div class="widget definition-list-widget">
+                                            <hr class="c-separator m-transparent hidden-lg hidden-md">
+                                            <div class="widget-inner">
+                                                <h3 class="widget-title m-has-ico"><i class="widget-ico tp tp-telephone"></i>Телефони</h3>
+                                                <div class="widget-content">
+                                                    <dl>
+                                                        @if (controller.GetLayoutPhoneNumbers() != null)
+                                                        {
+                                                            @foreach (var phoneNumner in controller.GetLayoutPhoneNumbers())
+                                                            {
+                                                                <dt>@phoneNumner.Name</dt>
+                                                                <dd><a href="tel: @phoneNumner.Number">@phoneNumner.Number</a></dd>
+                                                            }
+                                                        }
+                                                    </dl>
+                                                    <p class="show-all-btn"><a href="@Url.Action("PhoneNumbers", "Home")">Виж всички телефони</a></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (!controller.IsSignedIn)
+                                    {
+                                        <div class="widget-col @colClass">
+
+                                            <div class="widget mailchimp-subscribe-widget">
+                                                <hr class="c-separator m-transparent hidden-lg hidden-md">
+                                                <div class="widget-inner">
+                                                    <h3 class="widget-title m-has-ico"><i class="widget-ico tp tp-shield"></i>Влез като администратор</h3>
+                                                    <div class="widget-content">
+                                                        <form class="mailchimp-subscribe-form" method="post" action="@Url.Action("Login", "Account")">
+                                                            @Html.Hidden("Action", action)
+                                                            <div class="subscribe-inner">
+                                                                <div class="form-fields">
+                                                                    <label>
+                                                                        Потребителско име <span>*</span>
+                                                                        <input type="text" data-val="true" data-val-required="Полето е задължително !." id="UserName" name="UserName" placeholder="Username" style="margin-top: 5px">
+                                                                    </label>
+                                                                    @Html.ValidationMessage("UserName")
+                                                                    <label>
+                                                                        Парола <span>*</span>
+                                                                        <input type="password" class="mt-2" data-val="true" data-val-required="Полето е задължително !" id="Password" name="Password" placeholder="Password" style="margin-top: 5px">
+                                                                    </label>
+                                                                    @Html.ValidationMessage("Password")
+                                                                </div>
+
+                                                                <div class="description" style="text-align: center">
+                                                                    <div>
+                                                                        <a href="@Url.Action("Register", "Account")">Стани част от нашия екип.</a>
+                                                                    </div>
+                                                                    <div>
+                                                                        <button type="submit" class="c-button" style="margin-top: 5px; width: 100px">Влез</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="widget-col @colClass">
+
+                                        <!-- TEXT WIDGET : begin -->
+                                        <div class="widget">
+                                            <hr class="c-separator m-transparent hidden-lg hidden-md">
+                                            <div class="widget-inner">
+                                                <h3 class="widget-title m-has-ico">
+                                                    <i class="widget-ico tp tp-envelope"></i>
+                                                    @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString()) Адрес
+                                                </h3>
+                                                <div class="widget-content">
+                                                    @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.Address.ToString())
+                                                    <p>
+                                                        Phone:
+                                                        <a href="tel: @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.PhoneNumber.ToString())">
+                                                            @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.PhoneNumber.ToString())
+                                                        </a>
+                                                        <br />
+                                                        Email:
+                                                        <a href="mailto:@controller.AppSettings.GetAppSettingValue(OrganizationPortal.AppSettings.AppSettingsKeys.Email)">
+                                                            @controller.AppSettings.GetAppSettingValue(OrganizationPortal.AppSettings.AppSettingsKeys.Email)
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- TEXT WIDGET : end -->
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- BOTTOM PANEL : end -->
+
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <div class="footer-bottom-inner">
+                        <div class="c-container">
+
+                            <!-- FOOTER SOCIAL : begin -->
+                            <!-- Here is the list of some popular social networks. There are more icons you can use, just refer to the documentation -->
+                            <div class="footer-social">
+                                <ul class="c-social-icons">
+                                    <li class="ico-linkedin"><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                                    <li class="ico-facebook"><a href="@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.FacebookPageLink.ToString())"><i class="fa fa-facebook"></i></a></li>
+                                </ul>
+                            </div>
+                            <!-- FOOTER SOCIAL : end -->
+                            <!-- FOOTER MENU : begin -->
+                            <nav class="footer-menu">
+                                <ul>
+                                    <li> <a href="@Url.Action("Privacy", "Home")"> Политика за поверителност на личните данни</a></li>
+                                </ul>
+                            </nav>
+                            <!-- FOOTER MENU : end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="/vendors/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+
+     <!-- NProgress -->
+    <script src="/vendors/nprogress/nprogress.js"></script>
+
+    <script src="~/js/third-party.js" type="text/javascript"></script>
+    <script src="~/js/library.js" type="text/javascript"></script>
+    <script src="~/js/scripts.js" type="text/javascript"></script>
+
+        <!-- ASG Objects Scripts -->
+    <script src="~/js/asg-objects.js"></script>
+    <script src="~/js/asg-extensions.js"></script>
+
+    <span id="media-query-breakpoint" style="display: none;"></span>
+
+    @RenderSection("scripts", false)
+
+<script>
+        $(document).ready(function () {
+
+            var $form = $("#search-form");
+            $.validator.unobtrusive.parse($form);
+
+            $('[data-action]').click(function (e) {
+                e.preventDefault();
+                var action = $(e.currentTarget).attr('data-action');
+
+                var culture = '';
+                if (action == 'set-bg-language') {
+                    culture = 'bg'
+                }
+                else if (action == 'set-en-language') {
+                    culture = 'en'
+                }
+
+                ASG.Ajax.post({
+                    url: '@Url.Action("SetLanguage", "Home")',
+                    data: {
+                        culture: culture
+                    },
+                    success: function () {
+                        location.reload();
+                    }
+                });
+            });
+
+            $(window).scroll(function (e) {
+                
+                if (window.innerWidth < 991 && $('[data-role="language-switcher-container"]').get(0)) {
+                    if ($('[data-role="language-switcher-container"]').offset().top > 40) {
+                        $('[data-role="language-switcher-container"]').find('ul').hide();
+                    } else {
+                        $('[data-role="language-switcher-container"]').find('ul').show();
+                    }
+                }
+            });
+        });
+</script>
+</body>
+</html>

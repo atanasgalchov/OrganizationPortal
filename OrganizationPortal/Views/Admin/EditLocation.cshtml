@@ -1,0 +1,122 @@
+﻿@model LocationViewModel
+@{
+    ViewData["Title"] = Model.Name != null ? $"{Model.Name}" : "Add Location";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section styles
+{
+
+}
+<!-- page content -->
+<div class="right_col" role="main">
+    <div class="page-title">
+        <div class="g-title">
+            <h3>@ViewData["Title"]</h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="">
+        <div class="x_panel">
+            <div class="x_title">
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content form-content-medium">
+                <br>
+                <form id="edit-location-form" class="form-vertical" method="post" action="@Url.Action("EditLocation", "Admin")" type="multipart/form-data">
+                    @Html.HiddenFor(x => x.Id)
+
+                    <div class="form-content">
+                        <div class="form-group">
+                            <label class="control-label" for="Name">Name</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control", placeholder = "Name" })
+                                @Html.ValidationMessageFor(x => x.Name)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Type">Type</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Type, new { @class = "form-control", placeholder = "Type" })
+                                @Html.ValidationMessageFor(x => x.Type)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Address">Address</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Address, new { @class = "form-control", placeholder = "Address" })
+                                @Html.ValidationMessageFor(x => x.Address)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Address">Lat</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Lat, new { @class = "form-control", placeholder = "Lat" })
+                                @Html.ValidationMessageFor(x => x.Lat)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="Address">Lang</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Lang, new { @class = "form-control", placeholder = "Lang" })
+                                @Html.ValidationMessageFor(x => x.Lang)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-footer">
+                        <button class="btn btn-large" type="button" data-action="back"><i class="fa fa-backward"></i> Back </button>
+                        <button class="btn btn-large" id="edit-location-submit-button" type="submit"><i class="fa fa-save"></i> Save </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            var $form = $("#edit-location-form");
+
+            $form
+                .find('[data-action]')
+                .click(function (e) {
+                    e.preventDefault();
+                    var $target = $(e.currentTarget);
+                    var action = $target.attr('data-action');
+
+                    if (action == 'back') {
+                        window.history.back();
+                    }
+                })
+                .end()
+                .submit(function (e) {
+                    e.preventDefault();
+
+                    var $form = $(this);
+                    if (!$form.valid()) {
+                        return;
+                    }
+
+                    var settings = {
+                        url: $form.attr('action'),
+                        success(response) {
+                            if (response.isSuccess) {
+                                window.location = response.redirectUrl;
+                                return;
+                            }
+                        },
+                        data: JSON.stringify($form.serializeToObject())
+                    };
+
+                    ASG.Ajax.postJson(settings);
+                })
+                .end();
+        });
+    </script>
+}

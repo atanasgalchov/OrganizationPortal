@@ -1,0 +1,196 @@
+﻿@model OrgUserViewModel
+@{
+    ViewData["Title"] = $"{Model.UserName}";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!-- page content -->
+<div class="right_col" role="main">
+    <div class="">
+        <div class="g-title">
+            <div class="title_left">
+                <h3>@ViewData["Title"]</h3>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="x_panel">
+            <div class="x_title">
+                
+            </div>
+            <div class="x_content">
+                <div id="user-profile">
+                    <div class="col-md-3 col-sm-3 col-xs-12 profile_left">
+                        <div class="profile_img">
+                            <div id="crop-avatar">
+                                <!-- Current avatar -->
+                                <img class="img-responsive avatar-view" src="@Html.Raw(Model.ProfilePictureUrl != null ? Model.ProfilePictureUrl: "/Content/Images/default/user.png")" alt="Avatar" title="Change the avatar">
+                            </div>
+                        </div>
+                        <h3>@Model.UserName</h3>
+
+                        <ul class="list-unstyled user_data">
+                            <li>
+                                <i class="fa fa-phone user-profile-icon"></i> @Html.Raw(Model.PhoneNumber != null ? Model.PhoneNumber : " - ")
+                            </li>
+                            <li>
+                                <i class="fa fa-briefcase user-profile-icon"></i> @Model.Email
+                            </li>
+                        </ul>
+                        <br />
+
+                        <!-- start skills -->
+                        <h4>Activities</h4>
+                        <ul class="list-unstyled user_data">
+                            <li>
+                                <p>News</p>
+                                <div class="progress progress_sm">
+                                    <div class="progress-bar bg-green" role="progressbar" data-transitiongoal="50"></div>
+                                </div>
+                            </li>
+                            <li>
+                                <p>Events</p>
+                                <div class="progress progress_sm">
+                                    <div class="progress-bar bg-green" role="progressbar" data-transitiongoal="70"></div>
+                                </div>
+                            </li>
+                        </ul>
+                        <!-- end of skills -->
+
+                    </div>
+                    <div class="col-md-9 col-sm-9 col-xs-12">
+
+                        <div class="profile_title">
+                            <div class="col-md-6">
+                                <h2>Profile</h2>
+                            </div>
+                        </div>
+
+                        <div class="x_content form-content-medium-left">
+                            <form id="edit-user-form" class="form-vertical" method="post" action="@Url.Action("EditUser", "Admin")" type="multipart/form-data">
+
+                                <div class="form-content">
+                                    <div class="form-group">
+                                        <label class="control-label" for="Email">Email</label>
+                                        <div>
+                                            @Model.Email
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="Phone">Phone</label>
+                                        <div>
+                                            @Model.PhoneNumber
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="FirstName">First Name</label>
+                                        <div>
+                                            @Model.FirstName
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label" for="LastName">Last Name</label>
+                                        <div>
+                                            @Model.LastName
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-footer">
+
+                                </div>
+                            </form>
+                            <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                                    <li role="presentation" class="active">
+                                        <a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Recent Events</a>
+                                    </li>
+                                    <li role="presentation" class="">
+                                        <a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Recent News</a>
+                                    </li>
+                                </ul>
+                                <div id="myTabContent" class="tab-content">
+                                    <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
+
+                                        @if (Model.Events != null && Model.Events.Count > 0)
+                                        {
+                                            <ul class="messages">
+                                                @foreach (var eventItem in Model.Events)
+                                                {
+                                                    <li>
+                                                        <img src="@(eventItem.MainPictureUrl != null ? eventItem.MainPictureUrl : "/Content/Images/default/common.png")" class="avatar" alt="">
+                                                        <div class="message_date">
+                                                            <h3 class="date text-info">@String.Format("{0: dd MMMM yyyy}", eventItem.StartDate.Value)</h3>
+                                                            <p class="month">@eventItem.Location.Address</p>
+                                                        </div>
+                                                        <div class="message_wrapper">
+                                                            <h4 class="heading">
+                                                                <a href="@Url.Action("EditEvent", "Admin")?Id=@eventItem.Id">@eventItem.Name </a>
+                                                            </h4>
+                                                            <blockquote class="message" style="word-wrap: break-word;overflow-wrap: break-word;">@eventItem.Content.ReplaceEnd(50) </blockquote>
+                                                            <br />
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <dvi> No Events </dvi>
+                                            <hr />
+                                        }
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                                        @if (Model.News != null && Model.News.Count() > 0)
+                                        {
+                                            <table id="view-profile-data-table-news" class="data table table-striped no-margin">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Title</th>
+                                                        <th>Category</th>
+                                                        <th>Visited</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var newsItem in Model.News)
+                                                    {
+                                                        <tr>
+                                                            <td><a href="@Url.Action("EditNews", "Admin")?Id=@newsItem.Id">@newsItem.Name</a></td>
+                                                            <td>@newsItem.Title</td>
+                                                            <td class="hidden-phone">@newsItem.Category.Name</td>
+                                                            <td class="vertical-align-mid">
+                                                                <div class="progress">
+                                                                    <div class="progress-bar progress-bar-success" data-transitiongoal="@newsItem.VisitedCount"></div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            <dvi> No News </dvi>
+                                            <hr />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{ 
+    <script>
+        $('#view-profile-data-table-news').DataTable({
+            info: false,
+            searching: false,
+            ordering: false,
+            paging: false
+        });
+    </script>
+}

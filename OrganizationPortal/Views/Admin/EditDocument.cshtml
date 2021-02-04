@@ -1,0 +1,176 @@
+﻿@model Document
+@{
+	ViewData["Title"] = Model.Name != null ? $"{Model.Name}" : "Add Document";
+	Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section styles
+{
+
+}
+<!-- page content -->
+<div class="right_col" role="main">
+	<div class="page-title">
+		<div class="g-title">
+			<h3>@ViewData["Title"]</h3>
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+	<div class="">
+		<div class="x_panel">
+			<div class="x_title">				
+				<div class="clearfix"></div>
+			</div>
+			<div class="x_content form-content-medium">
+				<br>
+				<form id="edit-document-form" class="form-vertical" method="post" action="@Url.Action("EditDocument", "Admin")" type="multipart/form-data">
+					@Html.HiddenFor(x => x.UploadedBy)
+					@Html.HiddenFor(x => x.FileUrl)
+					@Html.HiddenFor(x => x.Id)
+
+                    <div class="form-content">
+                        <div class="form-group">
+                            <label class="control-label" for="Name">Name</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control", placeholder = "Name" })
+                                @Html.ValidationMessageFor(x => x.Name)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="CategoryId">Category</label>
+                            <div>
+                                @Html.DropDownListFor(x => x.CategoryId, Model.CategoriesItems, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(x => x.CategoryId)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="Description">Description</label>
+                            <div>
+                                @Html.TextBoxFor(x => x.Description, new { @class = "form-control", placeholder = "Description" })
+                                @Html.ValidationMessageFor(x => x.Description)
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="text-align:center;border-style: dashed;background: gainsboro;">
+                            @Html.TextBoxFor(x => x.FileBase64String, new { type = "file", style = "visibility: hidden", accept = ".xlsx,.xls,.doc, .docx,.ppt, .pptx,.txt,.pdf" })
+                            <div>
+                                <a id="file-url" href="@Model.FileUrl" target="_blank" alt="No File" @Html.Raw(Model.FileUrl == null ? "display: none" : "")> @(Model.Name != null && Model.Name != String.Empty ? Model.Name : Model.FileUrl)  </a>
+                            </div>
+                            <div class="form-footer">
+                                <button class="btn" data-action="upload-file">
+                                    <i class="fa fa-edit"></i>Upload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+					<div class="form-footer">
+						<button class="btn" type="button" data-action="back"><i class="fa fa-backward"></i> Back </button>
+						<button class="btn" id="edit-document-submit-button" type="submit"><i class="fa fa-save"></i> Save </button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section scripts
+{
+	<script>
+		$(document).ready(function () {
+			var $form = $("#edit-document-form");
+			
+			$form
+				.find('[data-action]')
+				.click(function (e) {
+					e.preventDefault();
+					var $target = $(e.currentTarget);
+					var action = $target.attr('data-action');
+
+					if (action == 'back') {
+						window.history.back();
+					}
+					else if (action == 'upload-file') {
+                        $form.find('[name="FileBase64String"]').click();
+					}
+				})
+			.end()
+                .find('[name="FileBase64String"]')
+				.click(function (e) { this.value = null })
+				.change(function (e) {
+					if (this.files && this.files.length) {
+						var file = this.files[0];
+						var id = '@Model.Id';
+						if (id == 0) {
+							var fileSource = URL.createObjectURL(file);
+														
+                            $form.find('#file-url').attr('href', fileSource).text(file.name).show();
+							return;
+						}
+                        
+						var formData = new FormData();
+                        formData.append("file", file);
+                        formData.append("fileName", file.name);
+						formData.append("id", id);
+                
+						ASG.Ajax.post({
+							url: '@Url.Action("SaveDocumentFile", "Admin")',
+							data: formData,
+							processData: false,
+							contentType: false,
+							success(response) {
+								if (response.isSuccess) {
+									location.reload();
+									return;
+								}
+							},
+						});
+					}
+				})
+				.end();
+
+			var $form = $('#edit-document-form');
+			$form.submit(function (e) {
+				e.preventDefault();
+
+				var $form = $(this);
+				if (!$form.valid()) {
+					return;
+				}
+
+				var settings = {
+                    url: $form.attr('action'),					
+                    success(response) {
+                        if (response.isSuccess) {
+                            window.location = response.redirectUrl;
+                            return;
+                        }
+                    },
+				};
+
+				var id = '@Model.Id'
+                var $file = $form.find('[name="FileBase64String"]');
+                if (id == 0 && $file.get(0).files[0]) {
+					var reader = new FileReader();
+                    reader.readAsDataURL($file.get(0).files[0]);
+					reader.onload = function () {			
+                        
+                        var filePath = $file.val(); 
+						var data = $form.serializeToObject();
+                        data.FileBase64String = reader.result;
+                        data.FileExtension = filePath.substr(filePath.lastIndexOf('.') + 1, filePath.length);
+						settings.data = JSON.stringify(data);
+
+						ASG.Ajax.postJson(settings);
+					};
+				} else {
+					settings.data = JSON.stringify($form.serializeToObject()),
+
+					ASG.Ajax.postJson(settings);
+				}
+            });
+        });
+	</script>
+}

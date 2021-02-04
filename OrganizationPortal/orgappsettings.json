@@ -1,0 +1,13 @@
+// NOTE: All keys need exist in AppSettingsEnum
+
+// App Settings
+{
+	"AppName": "Organization",
+	"StyleSkinFileUrl": "orange.css",
+	"GMapsAPIKey": "",
+	"GMapsAPIZoom": "15",
+	"GMapsAPIMapType": "roadmap",
+	"GMapsAPIEnableMousewheel": "true",
+	"Email": "organization@gmail.com"
+}
+

@@ -1,0 +1,284 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json;
+@{ 
+    OrganizationPortal.Controllers.AdminController controller = ViewBag.Controller;
+    OrganizationPortal.OrgUser account = ViewBag.Account;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="~/Content/Images/logo/logo.png" type="image/ico" />
+
+    <title>@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString()) | @ViewData["Title"]</title>
+
+    <!-- Bootstrap -->
+    <link href="/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- jQuery UI-->
+    <link href="~/css/jquery-ui-1.12.1/jquery-ui.min.css" rel="stylesheet">
+    <link href="~/css/jquery-ui-1.12.1/jquery-ui.theme.min.css" rel="stylesheet">
+    <!-- jQuery Confirm -->
+    <link href="/css/jqueryconfirm/jquery-confirm.css" rel="stylesheet">
+
+    <!-- NProgress -->
+    <link href="/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <!-- bootstrap-progressbar -->
+    <link href="/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <!-- JQVMap -->
+    <link href="/vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
+    <!-- bootstrap-daterangepicker -->
+    <link href="/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+    <!-- bootstrap-datetimepicker -->
+    <link href="/vendors/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+
+    <!-- Datatables -->
+    <link href="/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+    <link href="/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+    <link href="/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Theme Style -->
+    <link href="/build/css/custom.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/css/style-admin.css" asp-append-version="true" />
+
+    @RenderSection("styles", false)
+</head>
+
+<body class="nav-md">
+ 
+    <!-- LOADING MASK -->
+    <div class='lmask'></div>
+    <!-- LOADING MASK -->
+
+    <div class="container body">
+        @Html.Partial("_CookieConsentPartialAdmin")
+        <div class="main_container">
+
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="@Url.Action("Index", "Admin")" class="site_title">
+                            <img src="~/Content/Images/logo/logo.png" style="max-width: 50px;" />
+                            <span>@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString()) Admin</span>
+                        </a>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <!-- menu profile quick info -->
+                    <div class="profile clearfix">
+                        <div class="profile_pic">
+                            <a href="@Url.Action("MyProfile", "Admin")">
+                                <img src="@Html.Raw(account.ProfilePictureUrl != null ? account.ProfilePictureUrl: "/Content/Images/default/user.png")" class="img-circle profile_img">
+                            </a>
+                        </div>
+                        <div class="profile_info">
+                            <span>@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AdminWelcomeText),</span>
+                            <h2>
+                                <a href="@Url.Action("MyProfile", "Admin")">@account.UserName</a>
+                            </h2>
+                        </div>
+                    </div>
+                    <!-- /menu profile quick info -->
+
+                    <br />
+
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <h3>Menu</h3>
+                            <ul class="nav side-menu">
+                                @if (account.IsAdministrator)
+                                {
+                                <li>
+                                    <a><i class="fa fa-calendar "></i> Events And News <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li>@Html.ActionLink("Events", "Events", "Admin")</li>
+                                        <li>@Html.ActionLink("News", "News", "Admin")</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa fa-apple"></i>Sources<span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li>@Html.ActionLink("Locations", "Locations", "Admin")</li>
+                                        <li>@Html.ActionLink("Categories", "Categories", "Admin")</li>
+                                        <li>@Html.ActionLink("Albums", "Albums", "Admin")</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa fa-info"></i>Information<span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li>@Html.ActionLink("Phone Numbers", "PhoneNumbers", "Admin")</li>
+                                        <li>@Html.ActionLink("Notices", "Notices", "Admin")</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa fa-file"></i>Files<span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li>@Html.ActionLink("Documents", "Documents", "Admin")</li>
+                                        <li>@Html.ActionLink("Photos", "Photos", "Admin")</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa fa-building"></i>Buildings<span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li>@Html.ActionLink("Halls", "Halls", "Admin")</li>
+                                    </ul>
+                                </li>
+                                }
+
+                                @if (account.IsMaster)
+                                {
+                                <li>
+                                    <a><i class="fa fa-file"></i>Resources <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li>@Html.ActionLink("Resources", "AppResources", "Admin")</li>
+                                        <li>@Html.ActionLink("App Settings", "AppSettings", "Admin")</li>
+                                    </ul>
+                                </li>
+                                }
+                                @if (account.IsAdministrator)
+                                {
+                                <li>
+                                    <a><i class="fa fa-user"></i> Users <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        @if (account.IsMaster)
+                                            {
+                                        <li>@Html.ActionLink("Roles", "Roles", "Admin")</li>
+                                        <li>@Html.ActionLink("Visitors", "Visitors", "Admin")</li>
+                                            }
+                                        <li>@Html.ActionLink("Users", "Users", "Admin")</li>
+                                    </ul>
+                                </li>
+                                }
+                                <li>
+                                    <a href="@Url.Action("Index", "Home")"><i class="fa fa-home"></i>@controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName) Home Page</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /sidebar menu -->
+                    <!-- /menu footer buttons -->
+                    <div class="sidebar-footer hidden-small">
+                        <a data-toggle="tooltip" data-placement="top" title="Logout" data-role="logout-link" href="javascript:;">
+                            <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <!-- /menu footer buttons -->
+                </div>
+            </div>
+
+            <!-- top navigation -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <img src="@Html.Raw(account.ProfilePictureUrl != null ? account.ProfilePictureUrl: "/Content/Images/default/user.png")" alt="">@account.UserName
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a href="@Url.Action("MyProfile", "Admin")"> Profile</a></li>
+                                    <li>
+                                        <form method="post" action="@Url.Action("Logout","Account")" data-role="logout-form"></form>
+                                        <a href="javascript:;" data-role="logout-link"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            @RenderBody()
+
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    @controller.Resources.GetAppResourcesValue(Resources.AppResourcesKeys.AppName.ToString()) Admin
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+
+
+    <!-- jQuery -->
+    <script src="/vendors/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    <!-- Bootstrap -->
+    <script src="/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- jQuery UI-->
+    <script src="~/js/jquery-ui-1.12.1/jquery-ui.js"></script>
+    <!-- jQuery Confirm -->
+    <script src="/js/jqueyconfirm/jquery-confirm.js"></script>
+    <script src="~/js/jqueyconfirm/jquery.dialogextend.js"></script>
+    <!-- NProgress -->
+    <script src="/vendors/nprogress/nprogress.js"></script>
+    <!-- bootstrap-progressbar -->
+    <script src="/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+
+    <!-- bootstrap-daterangepicker -->
+    <script src="/vendors/moment/min/moment.min.js"></script>
+    <script src="/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
+
+    <!-- bootstrap-datetimepicker -->
+    <script src="/vendors/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+
+    <!-- Flot -->
+    <script src="/vendors/Flot/jquery.flot.js"></script>
+    <script src="/vendors/Flot/jquery.flot.pie.js"></script>
+    <script src="/vendors/Flot/jquery.flot.time.js"></script>
+    <script src="/vendors/Flot/jquery.flot.stack.js"></script>
+    <script src="/vendors/Flot/jquery.flot.resize.js"></script>
+    <!-- Flot plugins -->
+    <script src="/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+    <script src="/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+    <script src="/vendors/flot.curvedlines/curvedLines.js"></script>
+
+    <!-- Datatables -->
+    <script src="/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+    <script src="/vendors/datatables.net-buttons/js/buttons.flash.min.js"></script>
+    <script src="/vendors/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="/vendors/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js"></script>
+    <script src="/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="/vendors/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+    <script src="/vendors/datatables.net-scroller/js/dataTables.scroller.min.js"></script>
+
+    <!-- Custom Theme Scripts -->
+    <script src="~/build/js/custom.js"></script>
+
+    <!-- ASG Objects Scripts -->
+    <script src="~/js/asg-objects.js"></script>
+    <script src="~/js/asg-extensions.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('[data-role="logout-link"]')
+                .click(function (e) {
+                    $('[data-role="logout-form"]').submit();
+                });
+        })
+    </script>
+    @RenderSection("scripts", false)
+</body>
+</html>
