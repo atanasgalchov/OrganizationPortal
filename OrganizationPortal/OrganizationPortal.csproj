@@ -7,6 +7,13 @@
   </PropertyGroup>
  
   <ItemGroup>
+    <Compile Remove="legacy\**" />
+    <Content Remove="legacy\**" />
+    <EmbeddedResource Remove="legacy\**" />
+    <None Remove="legacy\**" />
+  </ItemGroup>
+ 
+  <ItemGroup>
     <None Include="wwwroot\js\_UserProfile.js" />
   </ItemGroup>
 
