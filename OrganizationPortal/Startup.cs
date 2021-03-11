@@ -65,11 +65,11 @@ namespace OrganizationPortal
 				config.Password.RequireNonAlphanumeric = false;
 				config.Password.RequireUppercase = false;
 			})
-				.AddRoles<OrgRole>()
-				.AddRoleManager<RoleManager<OrgRole>>()
-				.AddDefaultUI()
-				.AddDefaultTokenProviders()
-				.AddEntityFrameworkStores<DbContext>();
+			.AddRoles<OrgRole>()
+			.AddRoleManager<RoleManager<OrgRole>>()
+			.AddDefaultUI()
+			.AddDefaultTokenProviders()
+			.AddEntityFrameworkStores<DbContext>();
 
 			services.AddScoped<UserClaimsPrincipalFactory<OrgUser, OrgRole>>();
 
